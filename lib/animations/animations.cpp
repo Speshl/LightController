@@ -1,15 +1,4 @@
 #include "animations.h"
-
-bool delayAndPollForUpdate(SwitchState* switches, BluetoothState* bluetooth, int delay){
-  unsigned long time = millis();
-  while(millis() < time + delay){
-    if(isNewBLEValue(bluetooth) == true || updateSwitchState(switches) == true){
-      return true;
-    }
-  }
-  return false;
-}
-
 void setInitialState(AnimationState* animation){
   Serial.println("Start setting Initial Animation State");
   animation->animation = 1;
@@ -31,7 +20,7 @@ void setInitialState(AnimationState* animation){
 
   byte tempPalette[animation->numberOfColors * 2];
   for(int i=0; i<animation->numberOfColors*4; i++){
-    tempPalette[i] == animation->paletteDescription[i];
+    tempPalette[i] = animation->paletteDescription[i];
   }
   
   animation->palette.loadDynamicGradientPalette(tempPalette);
@@ -110,6 +99,9 @@ void describeState(AnimationState* animation){
   Serial.println((uint8_t) animation->animation);//So it displays as number
   Serial.print("StepDelay: ");
   Serial.println(animation->stepDelay);//So it displays as number
+
+  Serial.print("NumberOfColors: ");
+  Serial.println(animation->numberOfColors);
 }
 
 void solidFromPalette(AnimationState* animation, ChannelState channels[MAX_CHANNELS], SwitchState* switches, BluetoothState* bluetooth, LocationState* location){
@@ -179,17 +171,15 @@ void rightTurnAnimationWithColor(ChannelState channels[MAX_CHANNELS], SwitchStat
   Serial.println("Finished Right Turn Animation");
 }
 
-uint16_t getStepDelay(uint16_t stepDelay, uint16_t frameTime){
-  if(frameTime > stepDelay){
+uint16_t getStepDelay(AnimationState* animation, uint16_t frameTime){
+  if(frameTime > animation->stepDelay){
     return 1;
   }else{
-      return stepDelay - frameTime;
+      return animation->stepDelay - frameTime;
   }
 }
 
 void updateAnimation(AnimationState* animation, ChannelState channels[MAX_CHANNELS], SwitchState* switches, BluetoothState* bluetooth, LocationState* location){
-  unsigned long frameStartTime = millis();
-
   switch(animation->animation){
       case 0:
         solidFromPalette(animation, channels, switches, bluetooth, location);
@@ -209,22 +199,33 @@ void updateAnimation(AnimationState* animation, ChannelState channels[MAX_CHANNE
       default:
         solidFromPalette(animation, channels, switches, bluetooth, location);
   }
-  unsigned long currentTime = millis();
-  Serial.print("Frame Time: ");
-  uint16_t frameTime = currentTime - frameStartTime;
-  Serial.println(frameTime);
+}
 
-  uint16_t adjustedStepDelay = getStepDelay(animation->stepDelay, frameTime);
-  /*Serial.print("Adjusted Step Delay: ");
-  Serial.println(adjustedStepDelay);*/
+std::string getAnimationIndex(AnimationState* animation){
+  char buffer[5];
+  return itoa(animation->animation,buffer, 10);
+}
 
-  if(delayAndPollForUpdate(switches, bluetooth, adjustedStepDelay) == true){
-    Serial.println("New BLE value found, breaking out of delay early to update.");
+std::string getStepSize(AnimationState* animation){
+  char buffer[10];
+  return itoa(animation->stepSize,buffer, 10);
+}
+
+std::string getNumberOfColors(AnimationState* animation){
+  char buffer[10];
+  return itoa((int)animation->numberOfColors,buffer, 10);
+}
+
+std::string getColorData(AnimationState* animation){
+  std::string fullData;
+  for(int i=0; i<40; i++){
+    if(i%4 == 0){
+      fullData += "<br>";
+    }
+    char buffer[5];
+    int temp = animation->paletteDescription[i];
+    fullData += itoa(temp, buffer, 10);
+    fullData += ",";
   }
-
-  Serial.print("FrameToFrame Time: ");
-  currentTime = millis();
-  animation->frameToFrameTime = currentTime - animation->lastFrameTime;
-  animation->lastFrameTime = currentTime;
-  Serial.println(animation->frameToFrameTime);
+  return fullData;
 }

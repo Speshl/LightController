@@ -90,3 +90,51 @@ void describeState(SwitchState* switches){
   Serial.print("UI Override: ");
   Serial.println(switches->uiOverride);//So it displays as number
 }
+
+std::string getLeftTurn(SwitchState* switches){
+  if(switches->leftTurn){
+    return "true";
+  }else{
+    return "false";
+  }
+}
+
+std::string getRightTurn(SwitchState* switches){
+  if(switches->rightTurn){
+    return "true";
+  }else{
+    return "false";
+  }
+}
+
+std::string getReverse(SwitchState* switches){
+  if(switches->reverse){
+    return "true";
+  }else{
+    return "false";
+  }
+}
+
+std::string getBrake(SwitchState* switches){
+  if(switches->brake){
+    return "true";
+  }else{
+    return "false";
+  }
+}
+
+std::string getInterior(SwitchState* switches){
+  if(switches->interior){
+    return "true";
+  }else{
+    return "false";
+  }
+}
+
+std::string getUIOverride(SwitchState* switches){
+  if(switches->uiOverride){
+    return "true";
+  }else{
+    return "false";
+  }
+}

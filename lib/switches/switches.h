@@ -30,4 +30,11 @@ void setStateFromString(SwitchState* switches, std::string inputValue);
 
 void describeState(SwitchState* switches);
 
+std::string getLeftTurn(SwitchState* switches);
+std::string getRightTurn(SwitchState* switches);
+std::string getReverse(SwitchState* switches);
+std::string getBrake(SwitchState* switches);
+std::string getInterior(SwitchState* switches);
+std::string getUIOverride(SwitchState* switches);
+
 #endif

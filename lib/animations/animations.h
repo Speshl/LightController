@@ -8,6 +8,7 @@
 #include <location.h>
 #include "string"
 
+
 #define ANIMATION_STATE_LENGTH 46
 
 struct AnimationState {
@@ -41,9 +42,9 @@ void setStateFromString(AnimationState* animation, std::string input);
 
 void describeState(AnimationState* animation);
 
-void updateAnimation(AnimationState* animation, ChannelState channels[MAX_CHANNELS], SwitchState* switches, BluetoothState* bluetooth, LocationState* location);
+uint16_t getStepDelay(AnimationState* animation, uint16_t frameTime);
 
-bool delayAndPollForUpdate(BluetoothState* bluetooth, int delay);
+void updateAnimation(AnimationState* animation, ChannelState channels[MAX_CHANNELS], SwitchState* switches, BluetoothState* bluetooth, LocationState* location);
 
 void brakeAnimation(ChannelState channels[MAX_CHANNELS], SwitchState* switches, BluetoothState* bluetooth);
 
@@ -52,4 +53,13 @@ void reverseAnimation(ChannelState channels[MAX_CHANNELS], SwitchState* switches
 void leftTurnAnimationWithColor(ChannelState channels[MAX_CHANNELS], SwitchState* switches, BluetoothState* bluetooth, CRGB color);
 
 void rightTurnAnimationWithColor(ChannelState channels[MAX_CHANNELS], SwitchState* switches, BluetoothState* bluetooth, CRGB color);
+
+std::string getAnimationIndex(AnimationState* animation);
+
+std::string getStepSize(AnimationState* animation);
+
+std::string getNumberOfColors(AnimationState* animation);
+
+std::string getColorData(AnimationState* animation);
+
 #endif

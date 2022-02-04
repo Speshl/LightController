@@ -53,7 +53,10 @@ void saveChannelLocationState(Preferences* preferences, int index, std::string v
 std::string loadSwitchState(Preferences* preferences){
   std::string returnValue;
   byte tempData[6];
-  preferences->getBytes("Switch",tempData,6);
+  uint8_t bytesRead = preferences->getBytes("Switch",tempData,6);
+  if(bytesRead == 0){
+    return "";
+  }
   for(int i=0; i<6; i++){ //Switch State Length 6
     returnValue += tempData[i];
   }
@@ -63,7 +66,10 @@ std::string loadSwitchState(Preferences* preferences){
 std::string loadAnimationState(Preferences* preferences){
   std::string returnValue = "";
   byte tempData[46];
-  preferences->getBytes("Animation",tempData,46);
+  uint8_t bytesRead = preferences->getBytes("Animation",tempData,46);
+  if(bytesRead == 0){
+    return "";
+  }
   for(int i=0; i<46; i++){
     returnValue += tempData[i];
   }
@@ -73,7 +79,10 @@ std::string loadAnimationState(Preferences* preferences){
 std::string loadChannelDetailState(Preferences* preferences, int index){
   std::string returnValue = "";
   byte tempData[11];
-  preferences->getBytes("Details"+index,tempData,11);
+  uint8_t bytesRead = preferences->getBytes("Details"+index,tempData,11);
+  if(bytesRead == 0){
+    return "";
+  }
   for(int i=0; i<11; i++){
     returnValue += tempData[i];
   }
@@ -88,7 +97,10 @@ std::string loadChannelLocationState(Preferences* preferences, int index, int nu
   Serial.print(index);
   Serial.print(" locations with LEDS: ");
   Serial.println(numLeds);*/
-  preferences->getBytes("Location"+index,tempData,numLeds*2);
+  uint8_t bytesRead = preferences->getBytes("Location"+index,tempData,numLeds*2);
+  if(bytesRead == 0){
+    return "";
+  }
   for(int i=0; i<numLeds*2; i++){
     returnValue += tempData[i];
   }

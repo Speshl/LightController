@@ -109,4 +109,15 @@ void setColorAtPos(ChannelState* channel, int pos, CRGB color);
 
 CRGB getColorAtPos(ChannelState* channel, int pos);
 
+std::string getChannelEnabled(ChannelState* channel);
+std::string getChannelInterior(ChannelState* channel);
+std::string getChannelDirectionFlipped(ChannelState* channel);
+std::string getChannelLeftTurn(ChannelState* channel);
+std::string getChannelRightTurn(ChannelState* channel);
+std::string getChannelBrake(ChannelState* channel);
+std::string getChannelReverse(ChannelState* channel);
+std::string getChannelType(ChannelState* channel);
+std::string getChannelOrder(ChannelState* channel);
+std::string getChannelNumLEDs(ChannelState* channel);
+
 #endif

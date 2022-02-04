@@ -38,7 +38,7 @@ CRGB getColor(ChannelState* channel,int red, int green, int blue){
 }
 
 void showAll(ChannelState channels[MAX_CHANNELS]){
-  Serial.println("Showing All");
+  //Serial.println("Showing All");
   for(int i=0; i<MAX_CHANNELS; i++){
     if(channels[i].updated == true && channels[i].controller != NULL){
       //Serial.print("Showing Channel ");
@@ -295,6 +295,76 @@ void setInitialState(ChannelState channels[MAX_CHANNELS]){
   Serial.println("Finished Setting Initial channel State");
 }
 
+std::string getChannelEnabled(ChannelState* channel){
+  if(channel->enabled){
+    return "true";
+  }else{
+    return "false";
+  }
+}
+
+std::string getChannelInterior(ChannelState* channel){
+  if(channel->interior){
+    return "true";
+  }else{
+    return "false";
+  }
+}
+
+std::string getChannelDirectionFlipped(ChannelState* channel){
+  if(channel->directionFlipped){
+    return "true";
+  }else{
+    return "false";
+  }
+}
+
+std::string getChannelLeftTurn(ChannelState* channel){
+  if(channel->leftTurn){
+    return "true";
+  }else{
+    return "false";
+  }
+}
+
+std::string getChannelRightTurn(ChannelState* channel){
+  if(channel->rightTurn){
+    return "true";
+  }else{
+    return "false";
+  }
+}
+
+std::string getChannelBrake(ChannelState* channel){
+  if(channel->brake){
+    return "true";
+  }else{
+    return "false";
+  }
+}
+
+std::string getChannelReverse(ChannelState* channel){
+  if(channel->reverse){
+    return "true";
+  }else{
+    return "false";
+  }
+}
+
+std::string getChannelType(ChannelState* channel){
+  char buffer[10];
+  return itoa(channel->type,buffer, 10);
+}
+
+std::string getChannelOrder(ChannelState* channel){
+  char buffer[10];
+  return itoa(channel->order,buffer, 10);
+}
+
+std::string getChannelNumLEDs(ChannelState* channel){
+ char buffer[10];
+  return itoa(channel->numLEDs,buffer, 10);
+}
 
 
 
