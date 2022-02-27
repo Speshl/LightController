@@ -26,6 +26,7 @@ struct BluetoothState {
   bool newLocationValue[MAX_CHANNELS];
   bool newDetailValue[MAX_CHANNELS];
   bool connected;
+  bool paused;
 };
 
 void initializeBluetooth(BluetoothState* bluetooth);
@@ -45,5 +46,9 @@ bool isNewBLEValue(BluetoothState* bluetooth);
 bool isConnected(BluetoothState* bluetooth);
 
 void acknowledgeNewBLEValue(BluetoothState* bluetooth);
+
+void pauseBluetooth(BluetoothState* bluetooth);
+
+void unpauseBluetooth(BluetoothState* bluetooth);
 
 #endif

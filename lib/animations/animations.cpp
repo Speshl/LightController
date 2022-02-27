@@ -6,6 +6,10 @@ void setInitialState(AnimationState* animation){
   animation->brightness = 255;
   animation->stepSize = 1;
   animation->blending = LINEARBLEND;
+
+  for(int i=0; i<MAX_COLORS*4;i++){
+    animation->paletteDescription[i] = 0;
+  }
   
   animation->paletteDescription[0] = 0;
   animation->paletteDescription[1] = 255;
@@ -26,6 +30,8 @@ void setInitialState(AnimationState* animation){
   animation->palette.loadDynamicGradientPalette(tempPalette);
   Serial.println("Finished setting Initial Animation State");
 }
+
+
 
 std::string getStateAsString(AnimationState* animation){
   std::string returnValue = "";
@@ -50,8 +56,10 @@ std::string getStateAsString(AnimationState* animation){
   returnValue += converter.charValue[0];
   returnValue += converter.charValue[1];
 
+  returnValue += animation->numberOfColors;
+
   /*Save palette*/
-  for(int i=0; i<animation->numberOfColors*4; i++){
+  for(int i=0; i<MAX_COLORS*4; i++){
     returnValue += animation->paletteDescription[i];
   }
   
@@ -79,13 +87,13 @@ void setStateFromString(AnimationState* animation, std::string input){
   converter.charValue[1] = input[5];
   animation->stepDelay = converter.wordValue;
 
+  animation->numberOfColors = input[6];
+
   /*Read palette*/
-  //Get number of colors in palete
-  animation->numberOfColors = (input.length() - 6) / 4; //Total number of bytes left in string divided by 4 bytes per color
-  byte tempPalette[4*animation->numberOfColors];
-  for(int i=0; i<4*animation->numberOfColors; i++){
-    animation->paletteDescription[i] = input[i+6];
-    tempPalette[i] = input[i+6];
+  byte tempPalette[4*MAX_COLORS];
+  for(int i=0; i<4*MAX_COLORS; i++){
+    animation->paletteDescription[i] = input[i+7];
+    tempPalette[i] = input[i+7];
   }
 
   //https://forum.makerforums.info/t/hi-is-it-possible-to-define-a-gradient-palette-at-runtime-the-define-gradient-palette-uses-the/63339/4
@@ -97,8 +105,8 @@ void describeState(AnimationState* animation){
   Serial.println("Describing Animation State - ");
   Serial.print("Animation: ");
   Serial.println((uint8_t) animation->animation);//So it displays as number
-  Serial.print("StepDelay: ");
-  Serial.println(animation->stepDelay);//So it displays as number
+  Serial.print("StepSize: ");
+  Serial.println(animation->stepSize);//So it displays as number
 
   Serial.print("NumberOfColors: ");
   Serial.println(animation->numberOfColors);
@@ -220,12 +228,70 @@ std::string getColorData(AnimationState* animation){
   std::string fullData;
   for(int i=0; i<40; i++){
     if(i%4 == 0){
-      fullData += "<br>";
+      fullData += "\r\n";
     }
     char buffer[5];
     int temp = animation->paletteDescription[i];
     fullData += itoa(temp, buffer, 10);
-    fullData += ",";
+    if(i != 39){
+      fullData += ",";
+    }
   }
   return fullData;
+}
+
+void setColorData(AnimationState* animation, std::string colorData){
+  int pos = 0;
+  std::string buffer[MAX_COLORS*4];
+
+  for(int i=0; i<colorData.length(); i++){
+    if(pos/4 >= animation->numberOfColors){
+      break;
+    }
+    if(colorData[i] == ','){
+      pos++;
+    }else if(colorData[i] != ','){
+      buffer[pos] += colorData[i];
+    }
+  }
+
+  for(int i=0; i<MAX_COLORS*4; i++){
+    int bufferInt = atoi(buffer[i].c_str());
+    animation->paletteDescription[i] = bufferInt;
+    Serial.print("Setting Palette ");
+    Serial.print(i);
+    Serial.print(" to value ");
+    Serial.println(bufferInt);
+  }
+}
+
+void setColorData2(AnimationState* animation, std::string colorData){
+  int pos = 0;
+  for(int i=0; i<animation->numberOfColors; i++){
+    for(int k=0; k<4; k++){
+    std::string dataPoint;
+      for(int j=pos; j < colorData.length(); j++){
+        if(colorData[j] == ','){
+          pos = j+1;
+          break;
+        }else if(colorData[j] == '\r' || colorData[j] == '\n' ){
+          pos = j+1;
+          break;
+        }else{
+          dataPoint += colorData[j];
+        }
+      }
+      int numberFromData = atoi(dataPoint.c_str());
+      animation->paletteDescription[4*i+k] = numberFromData;
+      Serial.print("Setting Palette ");
+      Serial.print(4*i+k);
+      Serial.print(" to value ");
+      Serial.println(numberFromData);
+    }
+  }
+}
+
+void animationUpdated(AnimationState* animation, ChannelState channels[MAX_CHANNELS]){
+  animation->stepIndex = 0;
+  clear(channels);
 }

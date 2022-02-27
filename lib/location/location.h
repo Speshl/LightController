@@ -11,7 +11,9 @@ struct LocationEntry {
   uint8_t row;
   uint8_t col;
   LocationEntry * nextRow;
+  LocationEntry * previousRow;
   LocationEntry * nextCol;
+  LocationEntry * previousCol;
 };
 
 struct LocationState {
@@ -22,6 +24,7 @@ struct LocationState {
   int totalLocations;
   LocationEntry * rowIndexes[LOCATION_GRID_SIZE];
   LocationEntry * colIndexes[LOCATION_GRID_SIZE];
+  LocationEntry * garbage;
 };
 
 //General
@@ -57,6 +60,8 @@ std::string getChannelEntriesData(LocationState* state, uint8_t channel, uint16_
 
 void removeAllEntries(LocationState* state);
 
+std::string getLocationGrid(LocationState* state);
+
 void describeState(LocationState* state);
 
 void describeLocation(LocationEntry* entry);
@@ -86,5 +91,15 @@ void shiftColorUpCol(LocationState* state, ChannelState channels[MAX_CHANNELS], 
 void shiftColorDownCol(LocationState* state, ChannelState channels[MAX_CHANNELS], CRGB color);
 
 void shiftColorDownRow(LocationState* state, ChannelState channels[MAX_CHANNELS], CRGB color);
+
+std::string getChannelLocations(LocationState* state, uint8_t channel, uint8_t maxPos);
+std::string getChannelLocationAtPosition(LocationState* state, uint8_t channel, uint8_t pos);
+
+void setChannelLocations(LocationState* state, uint8_t channel, uint8_t maxPos, std::string locations);
+
+// UPDATED FOR DOUBLY LINKED LIST
+void removeEntry(LocationState* state, LocationEntry * location);
+void removeChannelEntries(LocationState* state, uint8_t channel);
+void runGarbageCollector(LocationState* state);
 
 #endif

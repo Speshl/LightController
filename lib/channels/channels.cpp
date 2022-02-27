@@ -297,57 +297,57 @@ void setInitialState(ChannelState channels[MAX_CHANNELS]){
 
 std::string getChannelEnabled(ChannelState* channel){
   if(channel->enabled){
-    return "true";
+    return "checked=true";
   }else{
-    return "false";
+    return "";
   }
 }
 
 std::string getChannelInterior(ChannelState* channel){
   if(channel->interior){
-    return "true";
+    return "checked=true";
   }else{
-    return "false";
+    return "";
   }
 }
 
 std::string getChannelDirectionFlipped(ChannelState* channel){
   if(channel->directionFlipped){
-    return "true";
+    return "checked=true";
   }else{
-    return "false";
+    return "";
   }
 }
 
 std::string getChannelLeftTurn(ChannelState* channel){
   if(channel->leftTurn){
-    return "true";
+    return "checked=true";
   }else{
-    return "false";
+    return "";
   }
 }
 
 std::string getChannelRightTurn(ChannelState* channel){
   if(channel->rightTurn){
-    return "true";
+    return "checked=true";
   }else{
-    return "false";
+    return "";
   }
 }
 
 std::string getChannelBrake(ChannelState* channel){
   if(channel->brake){
-    return "true";
+    return "checked=true";
   }else{
-    return "false";
+    return "";
   }
 }
 
 std::string getChannelReverse(ChannelState* channel){
   if(channel->reverse){
-    return "true";
+    return "checked=true";
   }else{
-    return "false";
+    return "";
   }
 }
 

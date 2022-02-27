@@ -93,48 +93,48 @@ void describeState(SwitchState* switches){
 
 std::string getLeftTurn(SwitchState* switches){
   if(switches->leftTurn){
-    return "true";
+    return "checked=true";
   }else{
-    return "false";
+    return "";
   }
 }
 
 std::string getRightTurn(SwitchState* switches){
   if(switches->rightTurn){
-    return "true";
+    return "checked=true";
   }else{
-    return "false";
+    return "";
   }
 }
 
 std::string getReverse(SwitchState* switches){
   if(switches->reverse){
-    return "true";
+    return "checked=true";
   }else{
-    return "false";
+    return "";
   }
 }
 
 std::string getBrake(SwitchState* switches){
   if(switches->brake){
-    return "true";
+    return "checked=true";
   }else{
-    return "false";
+    return "";
   }
 }
 
 std::string getInterior(SwitchState* switches){
   if(switches->interior){
-    return "true";
+    return "checked=true";
   }else{
-    return "false";
+    return "";
   }
 }
 
 std::string getUIOverride(SwitchState* switches){
   if(switches->uiOverride){
-    return "true";
+    return "checked=true";
   }else{
-    return "false";
+    return "";
   }
 }

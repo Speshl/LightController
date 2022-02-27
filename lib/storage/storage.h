@@ -4,6 +4,8 @@
 
 void initializeStorage(Preferences* preferences);
 
+bool isFirstRun(Preferences* preferences);
+
 void saveSwitchState(Preferences* preferences, std::string value);
 
 void saveAnimationState(Preferences* preferences, std::string value);

@@ -9,7 +9,8 @@
 #include "string"
 
 
-#define ANIMATION_STATE_LENGTH 46
+#define ANIMATION_STATE_LENGTH 47
+#define MAX_COLORS 10
 
 struct AnimationState {
   uint8_t animation;
@@ -17,7 +18,7 @@ struct AnimationState {
   uint8_t stepSize;
   TBlendType blending;
   uint16_t stepDelay;
-  byte paletteDescription[40];
+  byte paletteDescription[MAX_COLORS*4];
   //Below not used to rebuild state
   uint8_t numberOfColors;
   CRGBPalette16 palette;
@@ -61,5 +62,9 @@ std::string getStepSize(AnimationState* animation);
 std::string getNumberOfColors(AnimationState* animation);
 
 std::string getColorData(AnimationState* animation);
+
+void setColorData(AnimationState* animation, std::string colorData);
+
+void animationUpdated(AnimationState* animation, ChannelState channels[MAX_CHANNELS]);
 
 #endif

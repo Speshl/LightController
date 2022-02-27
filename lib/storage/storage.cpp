@@ -14,6 +14,14 @@ void initializeStorage(Preferences* preferences){
   preferences->begin("Storage", false);
 }
 
+bool isFirstRun(Preferences* preferences){
+  bool firstRun = preferences->getBool("FirstRun", true);
+  if(firstRun == true){
+    preferences->putBool("FirstRun", false);
+  }
+  return firstRun;
+}
+
 void saveSwitchState(Preferences* preferences, std::string value){
   byte tempData[value.length()];
   for(int i=0; i<value.length(); i++){
@@ -65,12 +73,12 @@ std::string loadSwitchState(Preferences* preferences){
 
 std::string loadAnimationState(Preferences* preferences){
   std::string returnValue = "";
-  byte tempData[46];
-  uint8_t bytesRead = preferences->getBytes("Animation",tempData,46);
+  byte tempData[47];
+  uint8_t bytesRead = preferences->getBytes("Animation",tempData,47);
   if(bytesRead == 0){
     return "";
   }
-  for(int i=0; i<46; i++){
+  for(int i=0; i<47; i++){
     returnValue += tempData[i];
   }
   return returnValue;

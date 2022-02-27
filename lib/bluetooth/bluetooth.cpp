@@ -86,6 +86,22 @@ void initializeBluetooth(BluetoothState* bluetooth){
   Serial.println("Bluetooth Initialized");
 }
 
+void pauseBluetooth(BluetoothState* bluetooth){
+  if(bluetooth->paused == false){
+    bluetooth->pService->stop();
+    Serial.println("Bluetooth Paused");
+    bluetooth->paused = true;
+  }
+}
+
+void unpauseBluetooth(BluetoothState* bluetooth){
+  if(bluetooth->paused == true){
+    bluetooth->pService->start();
+    Serial.println("Bluetooth Unpaused");
+    bluetooth->paused = false;
+  }
+}
+
 std::string getSwitchStateAsString(BluetoothState* bluetooth){
   return bluetooth->switchCharacteristic->getValue();
 }

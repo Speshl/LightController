@@ -5,34 +5,375 @@
 <body>
 <h1>ESP32 Web Server</h1>
 <div>
-    <p> SWITCH STATE </p>
-    <p> Left Turn: %REPLACE_SWITCH_LEFTTURN% </p>
-    <p> Right Turn: %REPLACE_SWITCH_RIGHTTURN% </p>
-    <p> Reverse: %REPLACE_SWITCH_REVERSE% </p>
-    <p> Brake: %REPLACE_SWITCH_BRAKE% </p>
-    <p> Interior: %REPLACE_SWITCH_INTERIOR% </p>
-    <p> UIOverride: %REPLACE_SWITCH_UIOVERRIDE% </p>
+    <H2>Switches</H2>
+    <form action="/switches" method="post">
+        <label for="leftTurn">Left Turn:</label>
+        <input type="checkbox" id="leftTurn" name="leftTurn" value=true %REPLACE_SWITCH_LEFTTURN%><br>
+        <label for="rightTurn">Right Turn:</label>
+        <input type="checkbox" id="rightTurn" name="rightTurn" value=true %REPLACE_SWITCH_RIGHTTURN%><br>
+        <label for="Reverse">Reverse:</label>
+        <input type="checkbox" id="Reverse" name="Reverse" value=true %REPLACE_SWITCH_REVERSE%><br>
+        <label for="Brake">Brake:</label>
+        <input type="checkbox" id="Brake" name="Brake" value=true %REPLACE_SWITCH_BRAKE%><br>
+        <label for="Interior">Interior:</label>
+        <input type="checkbox" id="Interior" name="Interior" value=true %REPLACE_SWITCH_INTERIOR%><br>
+        <label for="UIOverride">UIOverride:</label>
+        <input type="checkbox" id="UIOverride" name="UIOverride" value=true %REPLACE_SWITCH_UIOVERRIDE%><br>
+        <input type="submit" value="Update">
+    </form>
+</div>
+
+<div>
+    <H2>Animation</H2>
+    <form action="/animation" method="post">
+        <label for="animation">Animation:</label>
+        <input type="number" id="animation" name="animation" value=%REPLACE_ANIMATION_INDEX% min="0" max="4"><br>
+
+        <label for="stepSize">Step Size:</label>
+        <input type="number" id="stepSize" name="stepSize" value=%REPLACE_ANIMATION_STEPSIZE% min="1" max="100"><br>
+
+        <label for="numberOfColors">Number of Colors:</label>
+        <input type="number" id="numberOfColors" name="numberOfColors" value=%REPLACE_ANIMATION_COLORNUM% min="1" max="10"><br>
+
+        <label for="colorData">Color Data:</label>
+        <textarea id="colorData" name="colorData">%REPLACE_ANIMATION_COLORDATA%</textarea><br>
+
+        <input type="submit" value="Update">
+    </form>
+</div>
+
+<div>
+    <H2>Channel 0</H2>
+    <form action="/channels" method="post">
+        <input type="hidden" name="CHANNEL_INDEX" value="0" />
+        <label for="CHANNEL_0_enabled">Enabled: </label>
+        <input type="checkbox" id="CHANNEL_0_enabled" name="CHANNEL_0_enabled" value=true %CHANNEL_0_ENABLED%><br>
+
+        <label for="CHANNEL_0_interior">Interior: </label>
+        <input type="checkbox" id="CHANNEL_0_interior" name="CHANNEL_0_interior" value=true %CHANNEL_0_INTERIOR%><br>
+
+        <label for="CHANNEL_0_directionFlipped">DirectionFlipped: </label>
+        <input type="checkbox" id="CHANNEL_0_enabled" name="CHANNEL_0_enabled" value=true %CHANNEL_0_DIRECTIONFLIPPED%><br>
+
+        <label for="CHANNEL_0_leftTurn">LeftTurn: </label>
+        <input type="checkbox" id="CHANNEL_0_leftTurn" name="CHANNEL_0_leftTurn" value=true %CHANNEL_0_LEFTTURN%><br>
+
+        <label for="CHANNEL_0_rightTurn">RightTurn: </label>
+        <input type="checkbox" id="CHANNEL_0_rightTurn" name="CHANNEL_0_rightTurn" value=true %CHANNEL_0_RIGHTTURN%><br>
+
+        <label for="CHANNEL_0_brake">Brake: </label>
+        <input type="checkbox" id="CHANNEL_0_brake" name="CHANNEL_0_brake" value=true %CHANNEL_0_BRAKE%><br>
+
+        <label for="CHANNEL_0_reverse">Reverse: </label>
+        <input type="checkbox" id="CHANNEL_0_reverse" name="CHANNEL_0_reverse" value=true %CHANNEL_0_REVERSE%><br>
+
+        <label for="CHANNEL_0_type">Type: </label>
+        <input type="number" id="CHANNEL_0_type" name="CHANNEL_0_type" value=%CHANNEL_0_TYPE% min="0" max="1"><br>
+
+        <label for="CHANNEL_0_order">Order: </label>
+        <input type="number" id="CHANNEL_0_order" name="CHANNEL_0_order" value=%CHANNEL_0_ORDER% min="0" max="5"><br>
+
+        <label for="CHANNEL_0_numLEDs">NumLEDs: </label>
+        <input type="number" id="CHANNEL_0_numLEDs" name="CHANNEL_0_numLEDs" value=%CHANNEL_0_NUMLEDS% min="0" max="100"><br>
+        
+        <label for="CHANNEL_0_positions">Positions: </label>
+        <textarea id="CHANNEL_0_positions" name="CHANNEL_0_positions">%CHANNEL_0_POSITIONS%</textarea><br>
+
+        <input type="submit" value="Update">
+    </form>
+</div>
+
+<H2>Channel 1</H2>
+    <form action="/channels" method="post">
+        <input type="hidden" name="CHANNEL_INDEX" value="1" />
+        <label for="CHANNEL_1_enabled">Enabled: </label>
+        <input type="checkbox" id="CHANNEL_1_enabled" name="CHANNEL_1_enabled" value=true %CHANNEL_1_ENABLED%><br>
+
+        <label for="CHANNEL_1_interior">Interior: </label>
+        <input type="checkbox" id="CHANNEL_1_interior" name="CHANNEL_1_interior" value=true %CHANNEL_1_INTERIOR%><br>
+
+        <label for="CHANNEL_1_directionFlipped">DirectionFlipped: </label>
+        <input type="checkbox" id="CHANNEL_1_enabled" name="CHANNEL_1_enabled" value=true %CHANNEL_1_DIRECTIONFLIPPED%><br>
+
+        <label for="CHANNEL_1_leftTurn">LeftTurn: </label>
+        <input type="checkbox" id="CHANNEL_1_leftTurn" name="CHANNEL_1_leftTurn" value=true %CHANNEL_1_LEFTTURN%><br>
+
+        <label for="CHANNEL_1_rightTurn">RightTurn: </label>
+        <input type="checkbox" id="CHANNEL_1_rightTurn" name="CHANNEL_1_rightTurn" value=true %CHANNEL_1_RIGHTTURN%><br>
+
+        <label for="CHANNEL_1_brake">Brake: </label>
+        <input type="checkbox" id="CHANNEL_1_brake" name="CHANNEL_1_brake" value=true %CHANNEL_1_BRAKE%><br>
+
+        <label for="CHANNEL_1_reverse">Reverse: </label>
+        <input type="checkbox" id="CHANNEL_1_reverse" name="CHANNEL_1_reverse" value=true %CHANNEL_1_REVERSE%><br>
+
+        <label for="CHANNEL_1_type">Type: </label>
+        <input type="number" id="CHANNEL_1_type" name="CHANNEL_1_type" value=%CHANNEL_1_TYPE% min="0" max="1"><br>
+
+        <label for="CHANNEL_1_order">Order: </label>
+        <input type="number" id="CHANNEL_1_order" name="CHANNEL_1_order" value=%CHANNEL_1_ORDER% min="0" max="5"><br>
+
+        <label for="CHANNEL_1_numLEDs">NumLEDs: </label>
+        <input type="number" id="CHANNEL_1_numLEDs" name="CHANNEL_1_numLEDs" value=%CHANNEL_1_NUMLEDS% min="0" max="100"><br>
+        
+        <label for="CHANNEL_1_positions">Positions: </label>
+        <textarea id="CHANNEL_1_positions" name="CHANNEL_1_positions">%CHANNEL_1_POSITIONS%</textarea><br>
+
+        <input type="submit" value="Update">
+    </form>
+</div>
+
+<H2>Channel 2</H2>
+    <form action="/channels" method="post">
+        <input type="hidden" name="CHANNEL_INDEX" value="2" />
+        <label for="CHANNEL_2_enabled">Enabled: </label>
+        <input type="checkbox" id="CHANNEL_2_enabled" name="CHANNEL_2_enabled" value=true %CHANNEL_2_ENABLED%><br>
+
+        <label for="CHANNEL_2_interior">Interior: </label>
+        <input type="checkbox" id="CHANNEL_2_interior" name="CHANNEL_2_interior" value=true %CHANNEL_2_INTERIOR%><br>
+
+        <label for="CHANNEL_2_directionFlipped">DirectionFlipped: </label>
+        <input type="checkbox" id="CHANNEL_2_enabled" name="CHANNEL_2_enabled" value=true %CHANNEL_2_DIRECTIONFLIPPED%><br>
+
+        <label for="CHANNEL_2_leftTurn">LeftTurn: </label>
+        <input type="checkbox" id="CHANNEL_2_leftTurn" name="CHANNEL_2_leftTurn" value=true %CHANNEL_2_LEFTTURN%><br>
+
+        <label for="CHANNEL_2_rightTurn">RightTurn: </label>
+        <input type="checkbox" id="CHANNEL_2_rightTurn" name="CHANNEL_2_rightTurn" value=true %CHANNEL_2_RIGHTTURN%><br>
+
+        <label for="CHANNEL_2_brake">Brake: </label>
+        <input type="checkbox" id="CHANNEL_2_brake" name="CHANNEL_2_brake" value=true %CHANNEL_2_BRAKE%><br>
+
+        <label for="CHANNEL_2_reverse">Reverse: </label>
+        <input type="checkbox" id="CHANNEL_2_reverse" name="CHANNEL_2_reverse" value=true %CHANNEL_2_REVERSE%><br>
+
+        <label for="CHANNEL_2_type">Type: </label>
+        <input type="number" id="CHANNEL_2_type" name="CHANNEL_2_type" value=%CHANNEL_2_TYPE% min="0" max="1"><br>
+
+        <label for="CHANNEL_2_order">Order: </label>
+        <input type="number" id="CHANNEL_2_order" name="CHANNEL_2_order" value=%CHANNEL_2_ORDER% min="0" max="5"><br>
+
+        <label for="CHANNEL_2_numLEDs">NumLEDs: </label>
+        <input type="number" id="CHANNEL_2_numLEDs" name="CHANNEL_2_numLEDs" value=%CHANNEL_2_NUMLEDS% min="0" max="100"><br>
+        
+        <label for="CHANNEL_2_positions">Positions: </label>
+        <textarea id="CHANNEL_2_positions" name="CHANNEL_2_positions">%CHANNEL_2_POSITIONS%</textarea><br>
+
+        <input type="submit" value="Update">
+    </form>
+</div>
+
+<H2>Channel 3</H2>
+    <form action="/channels" method="post">
+        <input type="hidden" name="CHANNEL_INDEX" value="3" />
+        <label for="CHANNEL_3_enabled">Enabled: </label>
+        <input type="checkbox" id="CHANNEL_3_enabled" name="CHANNEL_3_enabled" value=true %CHANNEL_3_ENABLED%><br>
+
+        <label for="CHANNEL_3_interior">Interior: </label>
+        <input type="checkbox" id="CHANNEL_3_interior" name="CHANNEL_3_interior" value=true %CHANNEL_3_INTERIOR%><br>
+
+        <label for="CHANNEL_3_directionFlipped">DirectionFlipped: </label>
+        <input type="checkbox" id="CHANNEL_3_enabled" name="CHANNEL_3_enabled" value=true %CHANNEL_3_DIRECTIONFLIPPED%><br>
+
+        <label for="CHANNEL_3_leftTurn">LeftTurn: </label>
+        <input type="checkbox" id="CHANNEL_3_leftTurn" name="CHANNEL_3_leftTurn" value=true %CHANNEL_3_LEFTTURN%><br>
+
+        <label for="CHANNEL_3_rightTurn">RightTurn: </label>
+        <input type="checkbox" id="CHANNEL_3_rightTurn" name="CHANNEL_3_rightTurn" value=true %CHANNEL_3_RIGHTTURN%><br>
+
+        <label for="CHANNEL_3_brake">Brake: </label>
+        <input type="checkbox" id="CHANNEL_3_brake" name="CHANNEL_3_brake" value=true %CHANNEL_3_BRAKE%><br>
+
+        <label for="CHANNEL_3_reverse">Reverse: </label>
+        <input type="checkbox" id="CHANNEL_3_reverse" name="CHANNEL_3_reverse" value=true %CHANNEL_3_REVERSE%><br>
+
+        <label for="CHANNEL_3_type">Type: </label>
+        <input type="number" id="CHANNEL_3_type" name="CHANNEL_3_type" value=%CHANNEL_3_TYPE% min="0" max="1"><br>
+
+        <label for="CHANNEL_3_order">Order: </label>
+        <input type="number" id="CHANNEL_3_order" name="CHANNEL_3_order" value=%CHANNEL_3_ORDER% min="0" max="5"><br>
+
+        <label for="CHANNEL_3_numLEDs">NumLEDs: </label>
+        <input type="number" id="CHANNEL_3_numLEDs" name="CHANNEL_3_numLEDs" value=%CHANNEL_3_NUMLEDS% min="0" max="100"><br>
+        
+        <label for="CHANNEL_3_positions">Positions: </label>
+        <textarea id="CHANNEL_3_positions" name="CHANNEL_3_positions">%CHANNEL_3_POSITIONS%</textarea><br>
+
+        <input type="submit" value="Update">
+    </form>
+</div>
+
+<H2>Channel 4</H2>
+    <form action="/channels" method="post">
+        <input type="hidden" name="CHANNEL_INDEX" value="4" />
+        <label for="CHANNEL_4_enabled">Enabled: </label>
+        <input type="checkbox" id="CHANNEL_4_enabled" name="CHANNEL_4_enabled" value=true %CHANNEL_4_ENABLED%><br>
+
+        <label for="CHANNEL_4_interior">Interior: </label>
+        <input type="checkbox" id="CHANNEL_4_interior" name="CHANNEL_4_interior" value=true %CHANNEL_4_INTERIOR%><br>
+
+        <label for="CHANNEL_4_directionFlipped">DirectionFlipped: </label>
+        <input type="checkbox" id="CHANNEL_4_enabled" name="CHANNEL_4_enabled" value=true %CHANNEL_4_DIRECTIONFLIPPED%><br>
+
+        <label for="CHANNEL_4_leftTurn">LeftTurn: </label>
+        <input type="checkbox" id="CHANNEL_4_leftTurn" name="CHANNEL_4_leftTurn" value=true %CHANNEL_4_LEFTTURN%><br>
+
+        <label for="CHANNEL_4_rightTurn">RightTurn: </label>
+        <input type="checkbox" id="CHANNEL_4_rightTurn" name="CHANNEL_4_rightTurn" value=true %CHANNEL_4_RIGHTTURN%><br>
+
+        <label for="CHANNEL_4_brake">Brake: </label>
+        <input type="checkbox" id="CHANNEL_4_brake" name="CHANNEL_4_brake" value=true %CHANNEL_4_BRAKE%><br>
+
+        <label for="CHANNEL_4_reverse">Reverse: </label>
+        <input type="checkbox" id="CHANNEL_4_reverse" name="CHANNEL_4_reverse" value=true %CHANNEL_4_REVERSE%><br>
+
+        <label for="CHANNEL_4_type">Type: </label>
+        <input type="number" id="CHANNEL_4_type" name="CHANNEL_4_type" value=%CHANNEL_4_TYPE% min="0" max="1"><br>
+
+        <label for="CHANNEL_4_order">Order: </label>
+        <input type="number" id="CHANNEL_4_order" name="CHANNEL_4_order" value=%CHANNEL_4_ORDER% min="0" max="5"><br>
+
+        <label for="CHANNEL_4_numLEDs">NumLEDs: </label>
+        <input type="number" id="CHANNEL_4_numLEDs" name="CHANNEL_4_numLEDs" value=%CHANNEL_4_NUMLEDS% min="0" max="100"><br>
+        
+        <label for="CHANNEL_4_positions">Positions: </label>
+        <textarea id="CHANNEL_4_positions" name="CHANNEL_4_positions">%CHANNEL_4_POSITIONS%</textarea><br>
+
+        <input type="submit" value="Update">
+    </form>
+</div>
+
+<H2>Channel 5</H2>
+    <form action="/channels" method="post">
+        <input type="hidden" name="CHANNEL_INDEX" value="5" />
+        <label for="CHANNEL_5_enabled">Enabled: </label>
+        <input type="checkbox" id="CHANNEL_5_enabled" name="CHANNEL_5_enabled" value=true %CHANNEL_5_ENABLED%><br>
+
+        <label for="CHANNEL_5_interior">Interior: </label>
+        <input type="checkbox" id="CHANNEL_5_interior" name="CHANNEL_5_interior" value=true %CHANNEL_5_INTERIOR%><br>
+
+        <label for="CHANNEL_5_directionFlipped">DirectionFlipped: </label>
+        <input type="checkbox" id="CHANNEL_5_enabled" name="CHANNEL_5_enabled" value=true %CHANNEL_5_DIRECTIONFLIPPED%><br>
+
+        <label for="CHANNEL_5_leftTurn">LeftTurn: </label>
+        <input type="checkbox" id="CHANNEL_5_leftTurn" name="CHANNEL_5_leftTurn" value=true %CHANNEL_5_LEFTTURN%><br>
+
+        <label for="CHANNEL_5_rightTurn">RightTurn: </label>
+        <input type="checkbox" id="CHANNEL_5_rightTurn" name="CHANNEL_5_rightTurn" value=true %CHANNEL_5_RIGHTTURN%><br>
+
+        <label for="CHANNEL_5_brake">Brake: </label>
+        <input type="checkbox" id="CHANNEL_5_brake" name="CHANNEL_5_brake" value=true %CHANNEL_5_BRAKE%><br>
+
+        <label for="CHANNEL_5_reverse">Reverse: </label>
+        <input type="checkbox" id="CHANNEL_5_reverse" name="CHANNEL_5_reverse" value=true %CHANNEL_5_REVERSE%><br>
+
+        <label for="CHANNEL_5_type">Type: </label>
+        <input type="number" id="CHANNEL_5_type" name="CHANNEL_5_type" value=%CHANNEL_5_TYPE% min="0" max="1"><br>
+
+        <label for="CHANNEL_5_order">Order: </label>
+        <input type="number" id="CHANNEL_5_order" name="CHANNEL_5_order" value=%CHANNEL_5_ORDER% min="0" max="5"><br>
+
+        <label for="CHANNEL_5_numLEDs">NumLEDs: </label>
+        <input type="number" id="CHANNEL_5_numLEDs" name="CHANNEL_5_numLEDs" value=%CHANNEL_5_NUMLEDS% min="0" max="100"><br>
+        
+        <label for="CHANNEL_5_positions">Positions: </label>
+        <textarea id="CHANNEL_5_positions" name="CHANNEL_5_positions">%CHANNEL_5_POSITIONS%</textarea><br>
+
+        <input type="submit" value="Update">
+    </form>
+</div>
+
+<H2>Channel 6</H2>
+    <form action="/channels" method="post">
+        <input type="hidden" name="CHANNEL_INDEX" value="6" />
+        <label for="CHANNEL_6_enabled">Enabled: </label>
+        <input type="checkbox" id="CHANNEL_6_enabled" name="CHANNEL_6_enabled" value=true %CHANNEL_6_ENABLED%><br>
+
+        <label for="CHANNEL_6_interior">Interior: </label>
+        <input type="checkbox" id="CHANNEL_6_interior" name="CHANNEL_6_interior" value=true %CHANNEL_6_INTERIOR%><br>
+
+        <label for="CHANNEL_6_directionFlipped">DirectionFlipped: </label>
+        <input type="checkbox" id="CHANNEL_6_enabled" name="CHANNEL_6_enabled" value=true %CHANNEL_6_DIRECTIONFLIPPED%><br>
+
+        <label for="CHANNEL_6_leftTurn">LeftTurn: </label>
+        <input type="checkbox" id="CHANNEL_6_leftTurn" name="CHANNEL_6_leftTurn" value=true %CHANNEL_6_LEFTTURN%><br>
+
+        <label for="CHANNEL_6_rightTurn">RightTurn: </label>
+        <input type="checkbox" id="CHANNEL_6_rightTurn" name="CHANNEL_6_rightTurn" value=true %CHANNEL_6_RIGHTTURN%><br>
+
+        <label for="CHANNEL_6_brake">Brake: </label>
+        <input type="checkbox" id="CHANNEL_6_brake" name="CHANNEL_6_brake" value=true %CHANNEL_6_BRAKE%><br>
+
+        <label for="CHANNEL_6_reverse">Reverse: </label>
+        <input type="checkbox" id="CHANNEL_6_reverse" name="CHANNEL_6_reverse" value=true %CHANNEL_6_REVERSE%><br>
+
+        <label for="CHANNEL_6_type">Type: </label>
+        <input type="number" id="CHANNEL_6_type" name="CHANNEL_6_type" value=%CHANNEL_6_TYPE% min="0" max="1"><br>
+
+        <label for="CHANNEL_6_order">Order: </label>
+        <input type="number" id="CHANNEL_6_order" name="CHANNEL_6_order" value=%CHANNEL_6_ORDER% min="0" max="5"><br>
+
+        <label for="CHANNEL_6_numLEDs">NumLEDs: </label>
+        <input type="number" id="CHANNEL_6_numLEDs" name="CHANNEL_6_numLEDs" value=%CHANNEL_6_NUMLEDS% min="0" max="100"><br>
+        
+        <label for="CHANNEL_6_positions">Positions: </label>
+        <textarea id="CHANNEL_6_positions" name="CHANNEL_6_positions">%CHANNEL_6_POSITIONS%</textarea><br>
+
+        <input type="submit" value="Update">
+    </form>
+</div>
+
+<H2>Channel 7</H2>
+    <form action="/channels" method="post">
+        <input type="hidden" name="CHANNEL_INDEX" value="7" />
+        <label for="CHANNEL_7_enabled">Enabled: </label>
+        <input type="checkbox" id="CHANNEL_7_enabled" name="CHANNEL_7_enabled" value=true %CHANNEL_7_ENABLED%><br>
+
+        <label for="CHANNEL_7_interior">Interior: </label>
+        <input type="checkbox" id="CHANNEL_7_interior" name="CHANNEL_7_interior" value=true %CHANNEL_7_INTERIOR%><br>
+
+        <label for="CHANNEL_7_directionFlipped">DirectionFlipped: </label>
+        <input type="checkbox" id="CHANNEL_7_directionFlipped" name="CHANNEL_7_directionFlipped" value=true %CHANNEL_7_DIRECTIONFLIPPED%><br>
+
+        <label for="CHANNEL_7_leftTurn">LeftTurn: </label>
+        <input type="checkbox" id="CHANNEL_7_leftTurn" name="CHANNEL_7_leftTurn" value=true %CHANNEL_7_LEFTTURN%><br>
+
+        <label for="CHANNEL_7_rightTurn">RightTurn: </label>
+        <input type="checkbox" id="CHANNEL_7_rightTurn" name="CHANNEL_7_rightTurn" value=true %CHANNEL_7_RIGHTTURN%><br>
+
+        <label for="CHANNEL_7_brake">Brake: </label>
+        <input type="checkbox" id="CHANNEL_7_brake" name="CHANNEL_7_brake" value=true %CHANNEL_7_BRAKE%><br>
+
+        <label for="CHANNEL_7_reverse">Reverse: </label>
+        <input type="checkbox" id="CHANNEL_7_reverse" name="CHANNEL_7_reverse" value=true %CHANNEL_7_REVERSE%><br>
+
+        <label for="CHANNEL_7_type">Type: </label>
+        <input type="number" id="CHANNEL_7_type" name="CHANNEL_7_type" value=%CHANNEL_7_TYPE% min="0" max="1"><br>
+
+        <label for="CHANNEL_7_order">Order: </label>
+        <input type="number" id="CHANNEL_7_order" name="CHANNEL_7_order" value=%CHANNEL_7_ORDER% min="0" max="5"><br>
+
+        <label for="CHANNEL_7_numLEDs">NumLEDs: </label>
+        <input type="number" id="CHANNEL_7_numLEDs" name="CHANNEL_7_numLEDs" value=%CHANNEL_7_NUMLEDS% min="0" max="100"><br>
+        
+        <label for="CHANNEL_7_positions">Positions: </label>
+        <textarea id="CHANNEL_7_positions" name="CHANNEL_7_positions">%CHANNEL_7_POSITIONS%</textarea><br>
+
+        <input type="submit" value="Update">
+    </form>
 </div>
 <div>
-    <p> ANIMATION STATE </p>
-    <p> Animation: %REPLACE_ANIMATION_INDEX% </p>
-    <p> Step Size: %REPLACE_ANIMATION_STEPSIZE% </p>
-    <p> Number of Colors: %REPLACE_ANIMATION_COLORNUM% </p>
-    <p> Color Data: %REPLACE_ANIMATION_COLORDATA% </p>
+    <H2>Location Map</H2>
+    <textarea readonly oninput='this.style.height = "";this.style.height = this.scrollHeight + "px"'>%LOCATION_MAP%</textarea>
 </div>
 <div>
-    <p>Channel 1 State</p>
-    <P>Enabled: %REPLACE_CHANNEL1_ENABLED%</P>
-    <P>Interior: %REPLACE_CHANNEL1_INTERIOR%</P>
-    <P>DirectionFlipped: %REPLACE_CHANNEL1_DIRECTIONFLIPPED%</P>
-    <P>LeftTurn: %REPLACE_CHANNEL1_LEFTTURN%</P>
-    <P>RightTurn: %REPLACE_CHANNEL1_RIGHTTURN%</P>
-    <P>Brake: %REPLACE_CHANNEL1_BRAKE%</P>
-    <P>Reverse: %REPLACE_CHANNEL1_REVERSE%</P>
-    <P>Type: %REPLACE_CHANNEL1_TYPE%</P>
-    <P>Order: %REPLACE_CHANNEL1_ORDER%</P>
-    <P>NumLEDs: %REPLACE_CHANNEL1_NUMLEDS%</P>
-    <P>Positions: %REPLACE_CHANNEL1_POSITIONS%</P>
+    <form action="/save" method="post">
+        <input type="submit" value="Save All"> 
+    </form>
+    <form action="/defaultLocations" method="post">
+        <input type="submit" value="Default Locations"> 
+    </form>
 </div>
+
 </body>
-</htm>
+</html>
