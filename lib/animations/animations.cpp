@@ -155,6 +155,101 @@ void sweepLeftPalette(AnimationState* animation, ChannelState channels[MAX_CHANN
   //Serial.println("Finished Sweep Up From Palette command");
 }
 
+void showLine(ChannelState channels[MAX_CHANNELS], LocationState* location,CRGB color, int x1, int y1, int x2, int y2){
+  const bool steep = (fabs(y2-y1) > fabs(x2-x1));
+  if(steep){
+    std::swap(x1, y1);
+    std::swap(x2, y2);
+  }
+
+  if(x1 > x2){
+    std::swap(x1, x2);
+    std::swap(y1,y2);
+  }
+
+  const float dx = x2-x1;
+  const float dy = fabs(y2-y1);
+  float error = dx /2.0f;
+  const int ystep = (y1 < y2) ? 1 : -1;
+  int y = (int)y1;
+  const int maxX = int(x2);
+
+  for(int x=(int)x1; x<=maxX; x++){
+    if(steep){
+      setColorAtLocation(location, channels, y, x, color);
+    }else{
+      setColorAtLocation(location, channels, x, y, color);
+    }
+
+    error -= dy;
+    if(error <0){
+      y += ystep;
+      error += dx;
+    }
+  }
+}
+
+void showLine2(ChannelState channels[MAX_CHANNELS], LocationState* location,CRGB color, int x1, int y1, int x2, int y2, int dx, int dy, int decide){
+  //pk is initial decesion making parameter
+  //Note:x1&y1,x2&y2, dx&dy values are intercganged
+  //and passed in plotPixel function so
+  //it can handle both cases when m>1 & m<1
+  int pk = 2 * dy - dx;
+  for (int i = 0; i <= dx; i++){
+    //checking either to decrement or increment the value
+    //if we have to plot from (0,100) to (100,0)
+    x1 < x2 ? x1++ : x1--;
+    if (pk < 0){
+      //decesion value will decide to plot
+      //either  x1 or y1 in x's position
+      if (decide == 0){
+        setColorAtLocation(location, channels, x1, y1, color);//Red
+        pk = pk + 2 * dy;
+      }else{
+        setColorAtLocation(location, channels, y1, x1, color);//Yellow
+        pk = pk + 2 * dy;
+      }
+    }else{
+      y1 < y2 ? y1++ : y1--;
+      if (decide == 0){
+        setColorAtLocation(location, channels, x1, y1, color);//Red
+      }else{
+        setColorAtLocation(location, channels, y1, x1, color);//Yellow
+      }
+      pk = pk + 2 * dy - 2 * dx;
+    }
+  }
+}
+
+void spinClockwisePalette(AnimationState* animation, ChannelState channels[MAX_CHANNELS], SwitchState* switches, BluetoothState* bluetooth, LocationState* location){
+  //Serial.println("Starting Spin Clockwise From Palette command");
+  CRGB color = ColorFromPalette( animation->palette, animation->stepIndex, animation->brightness, animation->blending);
+  if(animation->xPos < LOCATION_GRID_SIZE-1 && animation->yPos == 0){ //Start by sweeping up rows
+    animation->xPos++;
+  }else if(animation->xPos >= LOCATION_GRID_SIZE-1 && animation->yPos < LOCATION_GRID_SIZE-1){ //Next sweeping "down" cols
+    animation->yPos++;
+  }else if(animation->xPos <= LOCATION_GRID_SIZE -1 && animation->xPos > 0 && animation->yPos == LOCATION_GRID_SIZE -1){ //Third sweeping back down rows
+    animation->xPos--;
+  }else if(animation->xPos <= LOCATION_GRID_SIZE -1 && animation->yPos > 0){ //Lastly sweep back up columns
+    animation->yPos--;
+  }
+  uint8_t midX = floor(LOCATION_GRID_SIZE / 2);
+  uint8_t midY = floor(LOCATION_GRID_SIZE / 2);
+
+  /*int slopeX = abs(midX - animation->xPos);
+  int slopeY = abs(midY - animation->yPos);
+  //If slope is less than one passing argument as 0 to plot(x,y)
+  if (slopeX > slopeY){
+    showLine2(channels, location, color, animation->xPos, animation->yPos, midX, midY, slopeX, slopeY, 0);
+  }else{//if slope is greater than or equal to 1 passing argument as 1 to plot (y,x)
+    showLine2(channels, location, color, animation->yPos, animation->xPos, midY, midX, slopeY, slopeX, 1);
+  }*/
+  showLine(channels, location, color, animation->yPos, animation->xPos, midY, midX);
+  applyBufferAndShow(channels,switches);
+  animation->stepIndex += animation->stepSize;
+  //Serial.println("Finished Spin Clockwise From Palette command");
+}
+
 void brakeAnimation(ChannelState channels[MAX_CHANNELS], SwitchState* switches, BluetoothState* bluetooth){
   Serial.println("Start Brake Animation");
   fillBrake(channels, CRGB::Red);
@@ -203,6 +298,9 @@ void updateAnimation(AnimationState* animation, ChannelState channels[MAX_CHANNE
         break;
       case 4:
         sweepLeftPalette(animation, channels, switches, bluetooth, location);
+        break;
+      case 5:
+        spinClockwisePalette(animation, channels, switches, bluetooth, location);
         break;
       default:
         solidFromPalette(animation, channels, switches, bluetooth, location);

@@ -23,6 +23,8 @@ struct AnimationState {
   uint8_t numberOfColors;
   CRGBPalette16 palette;
   uint8_t stepIndex;
+  uint8_t xPos;
+  uint8_t yPos;
   unsigned long frameToFrameTime;
   unsigned long lastFrameTime;
   unsigned long numFrames;

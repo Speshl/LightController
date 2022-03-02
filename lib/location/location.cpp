@@ -525,8 +525,11 @@ bool setColorAtLocation(LocationState* state, ChannelState channels[MAX_CHANNELS
     if(currentLocation->row == row && currentLocation->col == col){
       setColorAtPos(&channels[currentLocation->channel], currentLocation->pos, color);
       found = true;
+      break;
     }else if(currentLocation->row > row || (currentLocation->row == row && currentLocation->col > col)){
       break;
+    }else{
+      currentLocation = currentLocation->nextRow;
     }
   }
   return found;
