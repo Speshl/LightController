@@ -27,13 +27,13 @@
     <H2>Animation</H2>
     <form action="/animation" method="post">
         <label for="animation">Animation:</label>
-        <input type="number" id="animation" name="animation" value=%REPLACE_ANIMATION_INDEX% min="0" max="4"><br>
+        <input type="number" id="animation" name="animation" value=%REPLACE_ANIMATION_INDEX% min="0" max="5"><br>
+
+        <label for="blending">Blend Colors: </label>
+        <input type="checkbox" id="blending" name="blending" value=true %REPLACE_ANIMATION_BLEND%><br>
 
         <label for="stepSize">Step Size:</label>
         <input type="number" id="stepSize" name="stepSize" value=%REPLACE_ANIMATION_STEPSIZE% min="1" max="100"><br>
-
-        <label for="numberOfColors">Number of Colors:</label>
-        <input type="number" id="numberOfColors" name="numberOfColors" value=%REPLACE_ANIMATION_COLORNUM% min="1" max="10"><br>
 
         <label for="colorData">Color Data:</label>
         <textarea id="colorData" name="colorData">%REPLACE_ANIMATION_COLORDATA%</textarea><br>

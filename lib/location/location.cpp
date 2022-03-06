@@ -600,8 +600,6 @@ CRGB getColorAtLocation(LocationState* state, ChannelState channels[MAX_CHANNELS
 
 
 CRGB getColorAtRow(LocationState* state, ChannelState channels[MAX_CHANNELS], uint8_t row){
-  //Serial.print("Get color at row: ");
-  //Serial.println(row);
   LocationEntry * currentLocation = state->rowIndexes[row];
   if(currentLocation == NULL){
     //Serial.println("No index found starting at first Row");
@@ -645,7 +643,6 @@ void shiftColorUpRow(LocationState* state, ChannelState channels[MAX_CHANNELS], 
     savedColor = getColorAtRow(state, channels, i);
     bool updated = setColorAtRow(state,channels, i, newColor);
     if(updated){
-      //Serial.println("Row updated, saving color to be used on next row");
       newColor = savedColor;
     }
   }
@@ -656,8 +653,10 @@ void shiftColorDownRow(LocationState* state, ChannelState channels[MAX_CHANNELS]
   CRGB newColor = color;
   for(int i=LOCATION_GRID_SIZE-1; i>=0; i--){
     savedColor = getColorAtRow(state, channels, i);
-    setColorAtRow(state,channels, i, newColor);
-    newColor = savedColor;
+    bool updated = setColorAtRow(state,channels, i, newColor);
+    if(updated){
+      newColor = savedColor;
+    }
   }
 }
 
@@ -666,8 +665,10 @@ void shiftColorUpCol(LocationState* state, ChannelState channels[MAX_CHANNELS], 
   CRGB newColor = color;
   for(int i=0; i<LOCATION_GRID_SIZE; i++){
     savedColor = getColorAtCol(state, channels, i);
-    setColorAtCol(state,channels, i, newColor);
-    newColor = savedColor;
+    bool updated = setColorAtCol(state,channels, i, newColor);
+    if(updated){
+      newColor = savedColor;
+    }
   }
 }
 
@@ -676,8 +677,10 @@ void shiftColorDownCol(LocationState* state, ChannelState channels[MAX_CHANNELS]
   CRGB newColor = color;
   for(int i=LOCATION_GRID_SIZE-1; i>=0; i--){
     savedColor = getColorAtCol(state, channels, i);
-    setColorAtCol(state,channels, i, newColor);
-    newColor = savedColor;
+    bool updated = setColorAtCol(state,channels, i, newColor);
+    if(updated){
+      newColor = savedColor;
+    }
   }
 }
 
@@ -760,6 +763,126 @@ std::string getChannelLocationAtPosition(LocationState* state, uint8_t channel, 
 }
 
 void loadTestData(LocationState* state){
+  Serial.println("Start Loading Location Test Data");
+
+  //TOP LEFT
+  addEntry(state, 0, 0, 0, 0);
+  addEntry(state, 1, 0, 0, 1);
+  addEntry(state, 2, 0, 0, 2);
+  addEntry(state, 3, 0, 0, 3);
+  addEntry(state, 4, 0, 0, 4);
+  addEntry(state, 5, 0, 0, 5);
+
+  addEntry(state, 0, 1, 1, 0);
+  addEntry(state, 1, 1, 1, 1);
+  addEntry(state, 2, 1, 1, 2);
+  addEntry(state, 3, 1, 1, 3);
+  addEntry(state, 4, 1, 1, 4);
+  addEntry(state, 5, 1, 1, 5);
+
+  addEntry(state, 0, 2, 2, 0);
+  addEntry(state, 1, 2, 2, 1);
+  addEntry(state, 2, 2, 2, 2);
+  addEntry(state, 3, 2, 2, 3);
+  addEntry(state, 4, 2, 2, 4);
+  addEntry(state, 5, 2, 2, 5);
+
+  addEntry(state, 0, 3, 3, 0);
+  addEntry(state, 1, 3, 3, 1);
+  addEntry(state, 2, 3, 3, 2);
+  addEntry(state, 3, 3, 3, 3);
+  addEntry(state, 4, 3, 3, 4);
+  addEntry(state, 5, 3, 3, 5);
+  
+  addEntry(state, 0, 4, 4, 0);
+  addEntry(state, 1, 4, 4, 1);
+  addEntry(state, 2, 4, 4, 2);
+  addEntry(state, 3, 4, 4, 3);
+  addEntry(state, 4, 4, 4, 4);
+  addEntry(state, 5, 4, 4, 5);
+
+  addEntry(state, 0, 5, 5, 0);
+  addEntry(state, 1, 5, 5, 1);
+  addEntry(state, 2, 5, 5, 2);
+  addEntry(state, 3, 5, 5, 3);
+  addEntry(state, 4, 5, 5, 4);
+  addEntry(state, 5, 5, 5, 5);
+
+  addEntry(state, 0, 6, 6, 0);
+  addEntry(state, 1, 6, 6, 1);
+  addEntry(state, 2, 6, 6, 2);
+  addEntry(state, 3, 6, 6, 3);
+  addEntry(state, 4, 6, 6, 4);
+  addEntry(state, 5, 6, 6, 5);
+
+  addEntry(state, 0, 7, 7, 0);
+  addEntry(state, 1, 7, 7, 1);
+  addEntry(state, 2, 7, 7, 2);
+  addEntry(state, 3, 7, 7, 3);
+  addEntry(state, 4, 7, 7, 4);
+  addEntry(state, 5, 7, 7, 5);
+
+  addEntry(state, 0, 8, 8, 0);
+  addEntry(state, 1, 8, 8, 1);
+  addEntry(state, 2, 8, 8, 2);
+  addEntry(state, 3, 8, 8, 3);
+  addEntry(state, 4, 8, 8, 4);
+  addEntry(state, 5, 8, 8, 5);
+
+  addEntry(state, 0, 9, 9, 0);
+  addEntry(state, 1, 9, 9, 1);
+  addEntry(state, 2, 9, 9, 2);
+  addEntry(state, 3, 9, 9, 3);
+  addEntry(state, 4, 9, 9, 4);
+  addEntry(state, 5, 9, 9, 5);
+
+  addEntry(state, 0, 10, 10, 0);
+  addEntry(state, 1, 10, 10, 1);
+  addEntry(state, 2, 10, 10, 2);
+  addEntry(state, 3, 10, 10, 3);
+  addEntry(state, 4, 10, 10, 4);
+  addEntry(state, 5, 10, 10, 5);
+
+  addEntry(state, 0, 11, 11, 0);
+  addEntry(state, 1, 11, 11, 1);
+  addEntry(state, 2, 11, 11, 2);
+  addEntry(state, 3, 11, 11, 3);
+  addEntry(state, 4, 11, 11, 4);
+  addEntry(state, 5, 11, 11, 5);
+
+  addEntry(state, 0, 12, 12, 0);
+  addEntry(state, 1, 12, 12, 1);
+  addEntry(state, 2, 12, 12, 2);
+  addEntry(state, 3, 12, 12, 3);
+  addEntry(state, 4, 12, 12, 4);
+  addEntry(state, 5, 12, 12, 5);
+
+  addEntry(state, 0, 13, 13, 0);
+  addEntry(state, 1, 13, 13, 1);
+  addEntry(state, 2, 13, 13, 2);
+  addEntry(state, 3, 13, 13, 3);
+  addEntry(state, 4, 13, 13, 4);
+  addEntry(state, 5, 13, 13, 5);
+
+  addEntry(state, 0, 14, 14, 0);
+  addEntry(state, 1, 14, 14, 1);
+  addEntry(state, 2, 14, 14, 2);
+  addEntry(state, 3, 14, 14, 3);
+  addEntry(state, 4, 14, 14, 4);
+  addEntry(state, 5, 14, 14, 5);
+
+  addEntry(state, 0, 15, 15, 0);
+  addEntry(state, 1, 15, 15, 1);
+  addEntry(state, 2, 15, 15, 2);
+  addEntry(state, 3, 15, 15, 3);
+  addEntry(state, 4, 15, 15, 4);
+  addEntry(state, 5, 15, 15, 5);
+  
+  Serial.println("Finnished Loading Location Test Data");
+  //describeRowIndexes(state);
+}
+
+void loadCanAMData(LocationState* state){
   Serial.println("Start Loading Location Test Data");
 
   //Rock Light Right Front

@@ -5,7 +5,7 @@
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
-#define MAX_CHANNELS 8
+#define MAX_CHANNELS 16
 
 #define SERVICE_UUID        "4fafc201-1fb5-459e-8fcc-c5c9c331914b" //TODO: Change these
 #define SWITCH_CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a0"

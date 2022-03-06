@@ -1,7 +1,7 @@
 #include "animations.h"
 void setInitialState(AnimationState* animation){
   Serial.println("Start setting Initial Animation State");
-  animation->animation = 1;
+  animation->animation = 0;
   animation->stepDelay = 60;
   animation->brightness = 255;
   animation->stepSize = 1;
@@ -20,14 +20,8 @@ void setInitialState(AnimationState* animation){
   animation->paletteDescription[5] = 0;
   animation->paletteDescription[6] = 255;
   animation->paletteDescription[7] = 255;
-  animation->numberOfColors = 2;
 
-  byte tempPalette[animation->numberOfColors * 2];
-  for(int i=0; i<animation->numberOfColors*4; i++){
-    tempPalette[i] = animation->paletteDescription[i];
-  }
-  
-  animation->palette.loadDynamicGradientPalette(tempPalette);
+  animation->palette.loadDynamicGradientPalette(animation->paletteDescription);
   Serial.println("Finished setting Initial Animation State");
 }
 
@@ -55,8 +49,6 @@ std::string getStateAsString(AnimationState* animation){
   converter.wordValue = animation->stepDelay;
   returnValue += converter.charValue[0];
   returnValue += converter.charValue[1];
-
-  returnValue += animation->numberOfColors;
 
   /*Save palette*/
   for(int i=0; i<MAX_COLORS*4; i++){
@@ -87,13 +79,11 @@ void setStateFromString(AnimationState* animation, std::string input){
   converter.charValue[1] = input[5];
   animation->stepDelay = converter.wordValue;
 
-  animation->numberOfColors = input[6];
-
   /*Read palette*/
   byte tempPalette[4*MAX_COLORS];
   for(int i=0; i<4*MAX_COLORS; i++){
-    animation->paletteDescription[i] = input[i+7];
-    tempPalette[i] = input[i+7];
+    animation->paletteDescription[i] = input[i+6];
+    tempPalette[i] = input[i+6];
   }
 
   //https://forum.makerforums.info/t/hi-is-it-possible-to-define-a-gradient-palette-at-runtime-the-define-gradient-palette-uses-the/63339/4
@@ -107,9 +97,6 @@ void describeState(AnimationState* animation){
   Serial.println((uint8_t) animation->animation);//So it displays as number
   Serial.print("StepSize: ");
   Serial.println(animation->stepSize);//So it displays as number
-
-  Serial.print("NumberOfColors: ");
-  Serial.println(animation->numberOfColors);
 }
 
 void solidFromPalette(AnimationState* animation, ChannelState channels[MAX_CHANNELS], SwitchState* switches, BluetoothState* bluetooth, LocationState* location){
@@ -189,38 +176,6 @@ void showLine(ChannelState channels[MAX_CHANNELS], LocationState* location,CRGB 
   }
 }
 
-void showLine2(ChannelState channels[MAX_CHANNELS], LocationState* location,CRGB color, int x1, int y1, int x2, int y2, int dx, int dy, int decide){
-  //pk is initial decesion making parameter
-  //Note:x1&y1,x2&y2, dx&dy values are intercganged
-  //and passed in plotPixel function so
-  //it can handle both cases when m>1 & m<1
-  int pk = 2 * dy - dx;
-  for (int i = 0; i <= dx; i++){
-    //checking either to decrement or increment the value
-    //if we have to plot from (0,100) to (100,0)
-    x1 < x2 ? x1++ : x1--;
-    if (pk < 0){
-      //decesion value will decide to plot
-      //either  x1 or y1 in x's position
-      if (decide == 0){
-        setColorAtLocation(location, channels, x1, y1, color);//Red
-        pk = pk + 2 * dy;
-      }else{
-        setColorAtLocation(location, channels, y1, x1, color);//Yellow
-        pk = pk + 2 * dy;
-      }
-    }else{
-      y1 < y2 ? y1++ : y1--;
-      if (decide == 0){
-        setColorAtLocation(location, channels, x1, y1, color);//Red
-      }else{
-        setColorAtLocation(location, channels, y1, x1, color);//Yellow
-      }
-      pk = pk + 2 * dy - 2 * dx;
-    }
-  }
-}
-
 void spinClockwisePalette(AnimationState* animation, ChannelState channels[MAX_CHANNELS], SwitchState* switches, BluetoothState* bluetooth, LocationState* location){
   //Serial.println("Starting Spin Clockwise From Palette command");
   CRGB color = ColorFromPalette( animation->palette, animation->stepIndex, animation->brightness, animation->blending);
@@ -235,15 +190,6 @@ void spinClockwisePalette(AnimationState* animation, ChannelState channels[MAX_C
   }
   uint8_t midX = floor(LOCATION_GRID_SIZE / 2);
   uint8_t midY = floor(LOCATION_GRID_SIZE / 2);
-
-  /*int slopeX = abs(midX - animation->xPos);
-  int slopeY = abs(midY - animation->yPos);
-  //If slope is less than one passing argument as 0 to plot(x,y)
-  if (slopeX > slopeY){
-    showLine2(channels, location, color, animation->xPos, animation->yPos, midX, midY, slopeX, slopeY, 0);
-  }else{//if slope is greater than or equal to 1 passing argument as 1 to plot (y,x)
-    showLine2(channels, location, color, animation->yPos, animation->xPos, midY, midX, slopeY, slopeX, 1);
-  }*/
   showLine(channels, location, color, animation->yPos, animation->xPos, midY, midX);
   applyBufferAndShow(channels,switches);
   animation->stepIndex += animation->stepSize;
@@ -317,9 +263,12 @@ std::string getStepSize(AnimationState* animation){
   return itoa(animation->stepSize,buffer, 10);
 }
 
-std::string getNumberOfColors(AnimationState* animation){
-  char buffer[10];
-  return itoa((int)animation->numberOfColors,buffer, 10);
+std::string getBlending(AnimationState* animation){
+  if(animation->blending == 1){
+    return "checked=true";
+  }else{
+    return "";
+  }
 }
 
 std::string getColorData(AnimationState* animation){
@@ -343,9 +292,6 @@ void setColorData(AnimationState* animation, std::string colorData){
   std::string buffer[MAX_COLORS*4];
 
   for(int i=0; i<colorData.length(); i++){
-    if(pos/4 >= animation->numberOfColors){
-      break;
-    }
     if(colorData[i] == ','){
       pos++;
     }else if(colorData[i] != ','){
@@ -361,32 +307,7 @@ void setColorData(AnimationState* animation, std::string colorData){
     Serial.print(" to value ");
     Serial.println(bufferInt);
   }
-}
-
-void setColorData2(AnimationState* animation, std::string colorData){
-  int pos = 0;
-  for(int i=0; i<animation->numberOfColors; i++){
-    for(int k=0; k<4; k++){
-    std::string dataPoint;
-      for(int j=pos; j < colorData.length(); j++){
-        if(colorData[j] == ','){
-          pos = j+1;
-          break;
-        }else if(colorData[j] == '\r' || colorData[j] == '\n' ){
-          pos = j+1;
-          break;
-        }else{
-          dataPoint += colorData[j];
-        }
-      }
-      int numberFromData = atoi(dataPoint.c_str());
-      animation->paletteDescription[4*i+k] = numberFromData;
-      Serial.print("Setting Palette ");
-      Serial.print(4*i+k);
-      Serial.print(" to value ");
-      Serial.println(numberFromData);
-    }
-  }
+  animation->palette.loadDynamicGradientPalette(animation->paletteDescription);
 }
 
 void animationUpdated(AnimationState* animation, ChannelState channels[MAX_CHANNELS]){

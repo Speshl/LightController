@@ -4,37 +4,16 @@
 #include <FastLED.h>
 #include <switches.h>
 #define CHANNEL_SIZE 11
-#define MAX_CHANNELS 8
+#define MAX_CHANNELS 16
 #define MAX_LEDS 100
 #define MAX_ROWS 4
 #define MAX_COLS 3
 
-//https://randomnerdtutorials.com/esp32-pinout-reference-gpios/
-//DONT WORK: 27, 32, 33
-//GLITCHY: 0 2
-//                                        RIGHT SIDE   |      LEFT SIDE                 
-const int channelpins[MAX_CHANNELS] = {23,22,3,21,19,18,5,4/*,0,2,15,25*/}; //TODO: Update to actual pin numbers
+//Also Neeed to update static declarations in getDefinition() 
+//FIRST 8: GPIO_NUM_23,GPIO_NUM_22,GPIO_NUM_21,GPIO_NUM_19,GPIO_NUM_18,GPIO_NUM_5,GPIO_NUM_17,GPIO_NUM_16
+//LAST 8:  ,GPIO_NUM_4,GPIO_NUM_0,GPIO_NUM_2,GPIO_NUM_15,GPIO_NUM_13,GPIO_NUM_12,GPIO_NUM_14,GPIO_NUM_27
+const int channelpins[MAX_CHANNELS] = {GPIO_NUM_23,GPIO_NUM_22,GPIO_NUM_21,GPIO_NUM_19,GPIO_NUM_18,GPIO_NUM_5,GPIO_NUM_17,GPIO_NUM_16,GPIO_NUM_4,GPIO_NUM_0,GPIO_NUM_2,GPIO_NUM_15,GPIO_NUM_13,GPIO_NUM_12,GPIO_NUM_14,GPIO_NUM_27};
 
-//{23,22,3,21,19,18,5,4,0,2,15,25,26,14,12,13}
-//When looking at board from usb port
-//Channel 0 is 2nd pin frrom back on right side
-//Channel 1 is 3rd pin from back on right side
-//Channel 2 is 5th pin from back on right side
-//Channel 3 is 6th pin from back on right side
-//Channel 4 is 8th pin from back on right side
-//Channel 5 is 9th pin from back on right side
-//Channel 6 is 10th pin from back on right side
-//Channel 7 is 13th pin from back on right side //P4
-
-//Channel 8 is 14th pin from back on right side
-//Channel 9 is maybe 5th pin from front on right side //GLITCHY???
-//Channel 10 is 4th pin from front on right side
-
-//Channel 11 is 11th pin from front on left side
-//Channel 12 is 10th pin from front on left side
-//Channel 13 is 8th pin from front on left side
-//Channel 14 is 7th from front on left side
-//Channel 15 is 5th from front on left side
 union ChannelsConversion {
   uint16_t wordValue;
   char charValue[2];
