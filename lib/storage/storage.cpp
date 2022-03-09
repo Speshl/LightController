@@ -39,23 +39,26 @@ void saveAnimationState(Preferences* preferences, std::string value){
 }
 
 void saveChannelDetailState(Preferences* preferences, int index, std::string value){
+  char numstr[21];
+  std::string temp = itoa(index, numstr, 10);
+  std::string key = "Detail" + temp;
+
   byte tempData[value.length()];
   for(int i=0; i<value.length(); i++){
     tempData[i] = value[i];
   }
-  preferences->putBytes("Details"+index, &tempData, value.length());
+  preferences->putBytes(key.c_str(), &tempData, value.length());
 }
 
 void saveChannelLocationState(Preferences* preferences, int index, std::string value){
-  /*Serial.print("Location Index: ");
-  Serial.println(index);
-  Serial.print("Value Length: ");
-  Serial.println(value.length());*/
-  byte tempData[value.length()];
-  for(int i=0; i<value.length(); i++){
-    tempData[i] = value[i];
-  }
-  preferences->putBytes("Location"+index, tempData, value.length());
+  char numstr[21];
+  std::string temp = itoa(index, numstr, 10);
+  std::string key = "Loc" + temp;
+  /*Serial.print("Location ");
+  Serial.print(key.c_str());
+  Serial.print(" data to save - ");
+  Serial.println(value.c_str());*/
+  preferences->putString(key.c_str(), value.c_str());
 }
 
 std::string loadSwitchState(Preferences* preferences){
@@ -85,9 +88,13 @@ std::string loadAnimationState(Preferences* preferences){
 }
 
 std::string loadChannelDetailState(Preferences* preferences, int index){
+  char numstr[21];
+  std::string temp = itoa(index, numstr, 10);
+  std::string key = "Detail" + temp;
+
   std::string returnValue = "";
   byte tempData[11];
-  uint8_t bytesRead = preferences->getBytes("Details"+index,tempData,11);
+  uint8_t bytesRead = preferences->getBytes(key.c_str(),tempData,11);
   if(bytesRead == 0){
     return "";
   }
@@ -97,20 +104,22 @@ std::string loadChannelDetailState(Preferences* preferences, int index){
   return returnValue;
 }
 
-std::string loadChannelLocationState(Preferences* preferences, int index, int numLeds){
-  //Serial.println("Loading Locations");
+std::string loadChannelLocationState(Preferences* preferences, int index){
+  char numstr[21];
+  std::string temp = itoa(index, numstr, 10);
+  std::string key = "Loc" + temp;
+
   std::string returnValue = "";
-  byte tempData[numLeds*2];
- /* Serial.print("Getting Channel ");
-  Serial.print(index);
-  Serial.print(" locations with LEDS: ");
-  Serial.println(numLeds);*/
-  uint8_t bytesRead = preferences->getBytes("Location"+index,tempData,numLeds*2);
-  if(bytesRead == 0){
-    return "";
-  }
-  for(int i=0; i<numLeds*2; i++){
-    returnValue += tempData[i];
-  }
+  char tempData[800]; //Each entry is [XX,XX]|, current max is 100 entries, so max is 800
+  /*Serial.print("Getting Channel ");
+  Serial.println(key.c_str());*/
+
+  preferences->getString(key.c_str(),tempData, 800);
+  returnValue = tempData;
+
+  /*Serial.print("Location ");
+  Serial.print(key.c_str());
+  Serial.print(" data read - ");
+  Serial.println(returnValue.c_str());*/
   return returnValue;
 }

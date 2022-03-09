@@ -42,10 +42,14 @@ void initializeBluetooth(BluetoothState* bluetooth){
     "beb5483e-36e1-4688-b7f5-ea07361b2605",
     "beb5483e-36e1-4688-b7f5-ea07361b2606",
     "beb5483e-36e1-4688-b7f5-ea07361b2607",
-    /*"beb5483e-36e1-4688-b7f5-ea07361b2608",
+    "beb5483e-36e1-4688-b7f5-ea07361b2608",
     "beb5483e-36e1-4688-b7f5-ea07361b2609",
     "beb5483e-36e1-4688-b7f5-ea07361b260a",
-    "beb5483e-36e1-4688-b7f5-ea07361b260b"*/
+    "beb5483e-36e1-4688-b7f5-ea07361b260b",
+    "beb5483e-36e1-4688-b7f5-ea07361b260c",
+    "beb5483e-36e1-4688-b7f5-ea07361b260d",
+    "beb5483e-36e1-4688-b7f5-ea07361b260e",
+    "beb5483e-36e1-4688-b7f5-ea07361b260f",
   };
 
   char channelDetailUUID[MAX_CHANNELS][37] = {
@@ -57,10 +61,14 @@ void initializeBluetooth(BluetoothState* bluetooth){
     "beb5483e-36e1-4688-b7f5-ea07361b2615",
     "beb5483e-36e1-4688-b7f5-ea07361b2616",
     "beb5483e-36e1-4688-b7f5-ea07361b2617",
-    /*"beb5483e-36e1-4688-b7f5-ea07361b2618",
+    "beb5483e-36e1-4688-b7f5-ea07361b2618",
     "beb5483e-36e1-4688-b7f5-ea07361b2619",
     "beb5483e-36e1-4688-b7f5-ea07361b261a",
-    "beb5483e-36e1-4688-b7f5-ea07361b261b"*/
+    "beb5483e-36e1-4688-b7f5-ea07361b261b",
+    "beb5483e-36e1-4688-b7f5-ea07361b261c",
+    "beb5483e-36e1-4688-b7f5-ea07361b261d",
+    "beb5483e-36e1-4688-b7f5-ea07361b261e",
+    "beb5483e-36e1-4688-b7f5-ea07361b261f"
   };
   
   BLEDevice::init("SquadGlow");
@@ -79,7 +87,6 @@ void initializeBluetooth(BluetoothState* bluetooth){
     bluetooth->channelLocationsCharacteristic[i] = bluetooth->pService->createCharacteristic(channelLocationUUID[i], BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
     bluetooth->channelLocationsCharacteristic[i]->setCallbacks(new Callbacks(bluetooth));
   }
-
   bluetooth->pService->start();
   bluetooth->pAdvertising = bluetooth->pServer->getAdvertising();
   bluetooth->pAdvertising->start();
@@ -88,7 +95,10 @@ void initializeBluetooth(BluetoothState* bluetooth){
 
 void pauseBluetooth(BluetoothState* bluetooth){
   if(bluetooth->paused == false){
+    bluetooth->pAdvertising->stop();
     bluetooth->pService->stop();
+    //btStop();
+    //BLEDevice::deinit(true);
     Serial.println("Bluetooth Paused");
     bluetooth->paused = true;
   }
@@ -96,7 +106,9 @@ void pauseBluetooth(BluetoothState* bluetooth){
 
 void unpauseBluetooth(BluetoothState* bluetooth){
   if(bluetooth->paused == true){
+    //btStart();
     bluetooth->pService->start();
+    bluetooth->pAdvertising->start();
     Serial.println("Bluetooth Unpaused");
     bluetooth->paused = false;
   }

@@ -8,7 +8,7 @@ void setInitialState(LocationState* state){
     state->rowIndexes[i] = NULL;
     state->colIndexes[i] = NULL;
   }
-
+  removeAllEntries(state);
   loadTestData(state);
   Serial.println("Finished Setting Initial Location State");
 }
@@ -87,7 +87,11 @@ void describeRowIndexes(LocationState* state){
 void removeFromRowIndexes(LocationState* state, LocationEntry* entry){
   for(int i=0; i<LOCATION_GRID_SIZE; i++){
     if(state->rowIndexes[i] == entry){
-      state->rowIndexes[i] = entry->nextRow;
+      if(entry->nextRow != NULL && entry->nextRow->row == entry->row){
+        state->rowIndexes[i] = entry->nextRow;
+      }else{
+        state->rowIndexes[i] = NULL;
+      }
     }
   }
 }
@@ -95,7 +99,11 @@ void removeFromRowIndexes(LocationState* state, LocationEntry* entry){
 void removeFromColIndexes(LocationState* state, LocationEntry* entry){
   for(int i=0; i<LOCATION_GRID_SIZE; i++){
     if(state->colIndexes[i] == entry){
-      state->colIndexes[i] = entry->nextCol;
+      if(entry->nextCol != NULL && entry->nextCol->col == entry->col){
+        state->colIndexes[i] = entry->nextCol;
+      }else{
+        state->colIndexes[i] = NULL;
+      }
     }
   }
 }
@@ -164,6 +172,72 @@ void rebuildRowIndexes(LocationState* state){
   }
 }
 
+bool validate(LocationState* state){
+  //Serial.println("Validating Locations");
+  bool valid = true;
+  LocationEntry* currentLocation = state->firstRowLocation;
+  if(currentLocation == NULL && state->totalLocations !=0){
+    Serial.println("ERROR: No First Row but have locations");
+    valid = false;
+  }
+  while(currentLocation != NULL){
+
+    if(currentLocation == state->firstRowLocation){
+      if(state->firstRowLocation->previousRow != NULL){
+        Serial.println("ERROR: First row has a previous row");
+        valid = false;
+      }
+    }else if(currentLocation == state->firstColLocation){
+      if(state->firstColLocation->previousCol != NULL){
+        Serial.println("ERROR: First col has a previous col");
+        valid = false;
+      }
+    }else if(currentLocation == state->lastRowLocation){
+      if(state->lastRowLocation->nextRow != NULL){
+        Serial.println("ERROR: Last row has a next row");
+        valid = false;
+      }
+    }else if(currentLocation == state->lastColLocation){
+      if(state->lastColLocation->nextCol != NULL){
+        Serial.println("ERROR: Last col has a next col");
+        valid = false;
+      }
+    }else{
+      if(currentLocation->nextRow == NULL){
+        Serial.println("ERROR: Next row is null but not last row");
+        valid = false;
+      }
+      if(currentLocation->nextCol == NULL){
+        Serial.println("ERROR: Next col is null but not last col");
+        valid = false;
+      }
+      if(currentLocation->previousRow == NULL){
+        Serial.println("ERROR: Previous row is null but not first row");
+        valid = false;
+      }
+      if(currentLocation->previousCol == NULL){
+        Serial.println("ERROR: Previous col is NULL but not first COL");
+        valid = false;
+      }
+      LocationEntry* loopBackRow = currentLocation->previousRow->nextRow;
+      LocationEntry* loopForwardRow = currentLocation->nextRow->previousRow;
+
+      if(loopBackRow != currentLocation){
+        Serial.println("ERROR: Loop Back ROW failed");
+        valid = false;
+      }
+
+      if(loopForwardRow != currentLocation){
+        Serial.println("ERROR: Loop Forward ROW failed");
+        valid = false;
+      }
+    }
+    currentLocation = currentLocation->nextRow;
+  }
+  return valid;
+}
+
+
 void rebuildIndexes(LocationState* state){
   rebuildColIndexes(state);
   rebuildRowIndexes(state);
@@ -200,7 +274,7 @@ LocationEntry * getColStartPointForEntry(LocationState* state, LocationEntry* en
 void addEntryByRow(LocationState* state, LocationEntry* entry){
   LocationEntry * currentLocation = getRowStartPointForEntry(state,entry);
   if(currentLocation == NULL){ //First entry
-    //Serial.println("First Entry Found");
+    //Serial.println("FRESH First Entry Found");
     state->firstRowLocation = entry;
     state->lastRowLocation = entry;
     return;
@@ -209,18 +283,22 @@ void addEntryByRow(LocationState* state, LocationEntry* entry){
   bool added = false;
   while(currentLocation != NULL){
     if(compareEntriesByRow(entry, currentLocation) == -1){//check if new entry should go before currentLocation
-      if(previousLocation == NULL){ //If NULL then no previous location, goes to front of list
-        state->firstRowLocation->previousRow = entry;
-        entry->nextRow = state->firstRowLocation;
+      if(currentLocation == state->firstRowLocation){
         state->firstRowLocation = entry;//goes to front of list
-        //Serial.println("New Front Row Found");
-      }else{
+        //Serial.println("New FirstRow Found");
+      }
+      if(previousLocation != NULL){
         previousLocation->nextRow = entry;//links to previous node
         entry->previousRow = previousLocation;
+        //Serial.println("Updated previous row");
       }
       entry->nextRow = currentLocation; //new entry points to currentLocation
       currentLocation->previousRow = entry;
       //Serial.println("Entry added successfully");
+      //Serial.println("Record Before Added Entry");
+      //describeLocation(entry->previousRow);
+      //Serial.println("Record After Added Entry");
+      //describeLocation(entry->nextRow);
       added = true;
       break;
     }
@@ -249,7 +327,7 @@ void addEntryByCol(LocationState* state, LocationEntry* entry){
   bool added = false;
   while(currentLocation != NULL){
     if(compareEntriesByCol(entry, currentLocation) == -1){//check if new entry should go before currentLocation
-      if(previousLocation == NULL){ //If NULL then no previous location, goes to front of list
+      if(currentLocation == state->firstColLocation){ //If NULL then no previous location, goes to front of list
         state->firstColLocation->previousCol = entry;
         entry->nextCol = state->firstColLocation;
         state->firstColLocation = entry;//goes to front of list
@@ -285,11 +363,14 @@ void addEntry(LocationState* state, uint8_t row, uint8_t col, uint8_t channel, u
     entry->previousRow = NULL;
     entry->nextCol = NULL;
     entry->previousCol = NULL;
+    //Serial.println("Adding Entry");
     //describeLocation(entry);
+    //validate(state);
     addEntryByRow(state, entry);
     addEntryByCol(state, entry);
     updateIndexes(state, entry);
     state->totalLocations++;
+    //validate(state);
   }
 }
 
@@ -317,36 +398,61 @@ void addToGarbage(LocationState* state, LocationEntry * entry){
 }
 
 void removeEntry(LocationState* state, LocationEntry * location){
+    /*Serial.print("Removing Location :");
+    describeLocation(location);*/
+    location->channel = 255;//Easy way to tell if a locationEntry has been marked for deletion
     LocationEntry *previousRow = location->previousRow;
     if(previousRow != NULL){
       previousRow->nextRow = location->nextRow;
     }
+    LocationEntry *nextRow = location->nextRow;
+    if(nextRow != NULL){
+      nextRow->previousRow = location->previousRow;
+    }
+
     LocationEntry *previousCol = location->previousCol;
     if(previousCol != NULL){
       previousCol->nextCol = location->nextCol;
     }
+    LocationEntry *nextCol = location->nextCol;
+    if(nextCol != NULL){
+      nextCol->previousCol = location->previousCol;
+    }
+
+
     if(state->firstRowLocation == location){
       state->firstRowLocation = location->nextRow;
+      if(state->firstRowLocation != NULL){
+        state->firstRowLocation->previousRow = NULL;
+      }
     }
     if(state->lastRowLocation == location){
       state->lastRowLocation = location->previousRow;
+      if(state->lastRowLocation != NULL){
+        state->lastRowLocation->nextRow = NULL;
+      }
     }
     if(state->firstColLocation == location){
       state->firstColLocation = location->nextCol;
+      if(state->firstColLocation != NULL){
+        state->firstColLocation->previousCol = NULL;
+      }
     }
     if(state->lastColLocation == location){
       state->lastColLocation = location->previousCol;
+      if(state->lastColLocation != NULL){
+        state->lastColLocation->nextCol = NULL;
+      }
     }
     removeFromIndexes(state, location);
     state->totalLocations--;
-    Serial.print("Free Heap: ");
-    Serial.println(xPortGetFreeHeapSize());
 
     //Add to garbage list to be freeed later
     addToGarbage(state,location);
 }
 
 void removeChannelEntries(LocationState* state, uint8_t channel){
+  validate(state);
   Serial.print("Removing Entries For Channel ");
   Serial.println(channel);
   LocationEntry * currentLocation = state->firstRowLocation;
@@ -359,7 +465,6 @@ void removeChannelEntries(LocationState* state, uint8_t channel){
       currentLocation = currentLocation->nextRow;
     }
   }
-  //rebuildIndexes(state);
 }
 
 void removeAllEntries(LocationState* state){
@@ -378,37 +483,12 @@ void removeAllEntries(LocationState* state){
   rebuildIndexes(state);
 }
 
-void addChannelToEntries(LocationState* state, uint8_t channel, std::string inputData){
-  int pos = 0;
-  for(int i=0; i<inputData.length(); i+=2){
-    uint8_t row = inputData[i];
-    uint8_t col = inputData[i+1];
-    /*Serial.print("Channel: ");
-    Serial.print(channel);
-    Serial.print(" Row: ");
-    Serial.print(row);
-    Serial.print(" Col: ");
-    Serial.println(col);*/
-    addEntry(state,row,col,channel,pos);
-    pos++;//increment position
-  }
-}
-
-std::string getChannelEntriesData(LocationState* state, uint8_t channel, uint16_t numPos){
-  std::string returnValue (numPos*2, 0);
-  LocationEntry* currentLocation = state->firstRowLocation;
-  while(currentLocation != NULL){
-    if(currentLocation->channel == channel){
-      returnValue[(currentLocation->pos) * 2] = currentLocation->row;
-      returnValue[((currentLocation->pos) * 2)+1] = currentLocation->col;
-    }
-    currentLocation = currentLocation->nextRow;
-  }
-  return returnValue;
-}
-
 void describeLocation(LocationEntry* entry){
-  Serial.println("Describing Entry");
+  if(entry == NULL){
+    Serial.println("Location is empty");
+    return;
+  }
+  Serial.println("***Describing Entry***");
   Serial.print("Row: ");
   Serial.println(entry->row);
   Serial.print("Col: ");
@@ -417,23 +497,21 @@ void describeLocation(LocationEntry* entry){
   Serial.println(entry->channel);
   Serial.print("Pos: ");
   Serial.println(entry->pos);
-  /*Serial.print("PreviousRow: ");
-  Serial.println((entry->previousRow!= NULL));
-  Serial.print("NextRow: ");
-  Serial.println((entry->nextRow != NULL));
-  Serial.print("PreviousCol: ");
-  Serial.println((entry->previousCol != NULL));
-  Serial.print("NextCol: ");
-  Serial.println((entry->nextCol != NULL));*/
+  Serial.println("**********************");
 }
 
 void describeLocations(LocationState* state){
   LocationEntry* currentLocation = state->firstRowLocation;
-  
+  Serial.println("Descriibing all locations ordered by ROW");
+  int foundLocations = 0;
   while(currentLocation != NULL){
     describeLocation(currentLocation);
     currentLocation = currentLocation->nextRow;
+    foundLocations++;
   }
+  Serial.print("Found ");
+  Serial.print(foundLocations);
+  Serial.println(" Locations");
 }
 
 std::string getLocationGrid(LocationState* state){
@@ -449,13 +527,14 @@ std::string getLocationGrid(LocationState* state){
     for(int col=0; col<LOCATION_GRID_SIZE; col++){
       int value = entryAtLocation(state, row, col);
       if(value == -1){
-        grid +=" .";
+        grid +="  .";
       }else if(value >= 0 && value <= 9){
-        grid +=" ";
+        grid +="  ";
         char buffer2[10];
         std::string stringValue = itoa(value,buffer2,10);
         grid +=stringValue;
       }else{
+        grid +=" ";
         char buffer2[10];
         std::string stringValue = itoa(value,buffer2,10);
         grid +=stringValue;
@@ -582,7 +661,7 @@ bool setColorAtCol(LocationState* state, ChannelState channels[MAX_CHANNELS], ui
 
 
 CRGB getColorAtLocation(LocationState* state, ChannelState channels[MAX_CHANNELS], uint8_t row, uint8_t col){
-  Serial.println("Get color at Location");
+  //Serial.println("Get color at Location");
   LocationEntry * currentLocation = state->rowIndexes[row];
   if(currentLocation == NULL){
     currentLocation = state->firstRowLocation;
@@ -636,7 +715,6 @@ CRGB getColorAtCol(LocationState* state, ChannelState channels[MAX_CHANNELS], ui
 }
 
 void shiftColorUpRow(LocationState* state, ChannelState channels[MAX_CHANNELS], CRGB color){
-  //Serial.println("Shifting color up row");
   CRGB savedColor;
   CRGB newColor = color;
   for(int i=0; i<LOCATION_GRID_SIZE; i++){
@@ -686,8 +764,8 @@ void shiftColorDownCol(LocationState* state, ChannelState channels[MAX_CHANNELS]
 
 void setChannelLocations(LocationState* state, uint8_t channel, uint8_t maxPos, std::string locations){
   std::string leftToProcess = locations;
-  Serial.print("Positions: ");
-  Serial.println(locations.c_str());
+  /*Serial.print("Positions: ");
+  Serial.println(locations.c_str());*/
   removeChannelEntries(state, channel);
   for(int i=0; i<maxPos; i++){
     char buffer[10];
@@ -703,8 +781,6 @@ void setChannelLocations(LocationState* state, uint8_t channel, uint8_t maxPos, 
     bool commaFound = false;
     std::string xString;
     std::string yString;
-    Serial.print("Buffer: ");
-    Serial.println(buffer);
     for(int k=0; k<sizeof(buffer); k++){
       if(buffer[k] == '[' || buffer[k] == ' '){
         continue;
@@ -720,27 +796,17 @@ void setChannelLocations(LocationState* state, uint8_t channel, uint8_t maxPos, 
         }
       }
     }
-    Serial.print("X(string): ");
-    Serial.print(xString.c_str());
-    Serial.print(" X(int): ");
-    Serial.print(atoi(xString.c_str()));
-    Serial.print(" Y(string): ");
-    Serial.print(yString.c_str());
-    Serial.print(" Y(int): ");
-    Serial.print(atoi(yString.c_str()));
-    Serial.print(" Pos: ");
-    Serial.println(i);
     addEntry(state,atoi(xString.c_str()),atoi(yString.c_str()),channel,i);
   }
 }
 
 std::string getChannelLocations(LocationState* state, uint8_t channel, uint8_t maxPos){
   std::string returnData;
-
+  validate(state);
   for(int i=0; i<maxPos; i++){
     returnData += getChannelLocationAtPosition(state, channel, i);
     if(i != maxPos-1){
-      returnData += " | ";
+      returnData += "|";
     }
   }
   //Serial.println(returnData.c_str());
@@ -879,14 +945,13 @@ void loadTestData(LocationState* state){
   addEntry(state, 5, 15, 15, 5);
   
   Serial.println("Finnished Loading Location Test Data");
-  //describeRowIndexes(state);
 }
 
 void loadCanAMData(LocationState* state){
   Serial.println("Start Loading Location Test Data");
 
   //Rock Light Right Front
-  addEntry(state, 0, 63, 0, 0);
+  /*addEntry(state, 0, 63, 0, 0);
   addEntry(state, 1, 63, 0, 1);
   addEntry(state, 2, 63, 0, 2);
   addEntry(state, 3, 63, 0, 3);
@@ -1057,7 +1122,7 @@ void loadCanAMData(LocationState* state){
   addEntry(state, 14, 0, 7, 14);
   addEntry(state, 15, 0, 7, 15);
   addEntry(state, 16, 0, 7, 16);
-  addEntry(state, 17, 0, 7, 17);
+  addEntry(state, 17, 0, 7, 17);*/
   Serial.println("Finnished Loading Location Test Data");
   //describeRowIndexes(state);
 }

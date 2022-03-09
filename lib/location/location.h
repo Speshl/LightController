@@ -54,10 +54,6 @@ void addEntry(LocationState* state,uint8_t row, uint8_t col, uint8_t channel, ui
 
 bool removeEntryByRow(LocationState* state, uint8_t row, uint8_t col, uint8_t channel, uint8_t pos);
 
-void addChannelToEntries(LocationState* state, uint8_t channel, std::string inputData);
-
-std::string getChannelEntriesData(LocationState* state, uint8_t channel, uint16_t numPos);
-
 void removeAllEntries(LocationState* state);
 
 std::string getLocationGrid(LocationState* state);
@@ -101,5 +97,7 @@ void setChannelLocations(LocationState* state, uint8_t channel, uint8_t maxPos, 
 void removeEntry(LocationState* state, LocationEntry * location);
 void removeChannelEntries(LocationState* state, uint8_t channel);
 void runGarbageCollector(LocationState* state);
+void describeLocations(LocationState* state);
+bool validate(LocationState* state);
 
 #endif

@@ -20,6 +20,6 @@ std::string loadAnimationState(Preferences* preferences);
 
 std::string loadChannelDetailState(Preferences* preferences, int index);
 
-std::string loadChannelLocationState(Preferences* preferences, int index, int numLeds);
+std::string loadChannelLocationState(Preferences* preferences, int index);
 
 #endif

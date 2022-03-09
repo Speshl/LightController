@@ -178,7 +178,7 @@ void setStateFromString(ChannelState channels[MAX_CHANNELS],int i, std::string i
     }
   }
   clear(channels);
-  Serial.println("Showing All after state from string update for channels");
+  //Serial.println("Showing All after state from string update for channels");
   showAll(channels);
 }
 
