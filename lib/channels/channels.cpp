@@ -613,7 +613,7 @@ void loadTestData(ChannelState channels[MAX_CHANNELS]){
   channels[0].enabled = true; 
   channels[0].interior = false;
   channels[0].directionFlipped = true;
-  channels[0].leftTurn = false;
+  channels[0].leftTurn = true;
   channels[0].rightTurn = false;
   channels[0].brake = false;
   channels[0].reverse = false;
@@ -629,9 +629,9 @@ void loadTestData(ChannelState channels[MAX_CHANNELS]){
   channels[1].enabled = true; 
   channels[1].interior = false;
   channels[1].directionFlipped = true;
-  channels[1].leftTurn = false;
+  channels[1].leftTurn = true;
   channels[1].rightTurn = false;
-  channels[1].brake = false;
+  channels[1].brake = true;
   channels[1].reverse = false;
   channels[1].type = 1;
   channels[1].order = 2;
@@ -645,10 +645,10 @@ void loadTestData(ChannelState channels[MAX_CHANNELS]){
   channels[2].enabled = true; 
   channels[2].interior = false;
   channels[2].directionFlipped = true;
-  channels[2].leftTurn = false;
+  channels[2].leftTurn = true;
   channels[2].rightTurn = false;
-  channels[2].brake = false;
-  channels[2].reverse = false;
+  channels[2].brake = true;
+  channels[2].reverse = true;
   channels[2].type = 1;
   channels[2].order = 2;
   channels[2].numLEDs = 6;
@@ -822,9 +822,9 @@ void loadTestData(ChannelState channels[MAX_CHANNELS]){
   channels[13].interior = false;
   channels[13].directionFlipped = true;
   channels[13].leftTurn = false;
-  channels[13].rightTurn = false;
-  channels[13].brake = false;
-  channels[13].reverse = false;
+  channels[13].rightTurn = true;
+  channels[13].brake = true;
+  channels[13].reverse = true;
   channels[13].type = 1;
   channels[13].order = 2;
   channels[13].numLEDs = 6;
@@ -838,8 +838,8 @@ void loadTestData(ChannelState channels[MAX_CHANNELS]){
   channels[14].interior = false;
   channels[14].directionFlipped = true;
   channels[14].leftTurn = false;
-  channels[14].rightTurn = false;
-  channels[14].brake = false;
+  channels[14].rightTurn = true;
+  channels[14].brake = true;
   channels[14].reverse = false;
   channels[14].type = 1;
   channels[14].order = 2;
@@ -854,7 +854,7 @@ void loadTestData(ChannelState channels[MAX_CHANNELS]){
   channels[15].interior = false;
   channels[15].directionFlipped = true;
   channels[15].leftTurn = false;
-  channels[15].rightTurn = false;
+  channels[15].rightTurn = true;
   channels[15].brake = false;
   channels[15].reverse = false;
   channels[15].type = 1;

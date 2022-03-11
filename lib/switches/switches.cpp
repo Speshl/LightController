@@ -2,15 +2,17 @@
 
 bool getSwitchState(int pin){
   if(digitalRead(pin) == HIGH){//Switch is considered on when + signal is applied
-    return false;//TODO: SET BACK TO FALSE
+    return true;//TODO: SET BACK TO FALSE
   }else{
     return false;
   }
 }
 
+
+//Commented out so UI will override the actual switches
 bool updateSwitchState(SwitchState* switches){
   //Serial.println("Start Updating Switch State");
-  if(switches->uiOverride == true){ //UI Override is on so we don't want to use state changes from the physical switches
+ /* if(switches->uiOverride == true){ //UI Override is on so we don't want to use state changes from the physical switches
     return false;
   }
 
@@ -46,7 +48,8 @@ bool updateSwitchState(SwitchState* switches){
     updated = true;
   }
   //Serial.println("Finished Updating Switch State");
-  return updated;
+  return updated;*/
+  return false;
 }
 
 std::string getStateAsString(SwitchState* switches){

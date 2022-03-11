@@ -8,6 +8,8 @@
 
 #define SIGNAL_CORE 0
 
+static bool paused = false;
+
 struct State {
   BluetoothState bluetooth;
   AnimationState animation;
@@ -18,3 +20,7 @@ struct State {
 };
 
 void createSignals(State* state, TaskHandle_t* handle);
+
+void pauseSignals(TaskHandle_t* handle);
+
+void unPauseSignals(TaskHandle_t* handle);
