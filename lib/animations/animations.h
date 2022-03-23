@@ -9,11 +9,12 @@
 #include "string"
 
 
-#define ANIMATION_STATE_LENGTH 46
+#define ANIMATION_STATE_LENGTH 47
 #define MAX_COLORS 10
 
 struct AnimationState {
   uint8_t animation;
+  uint8_t palettePreset;
   uint8_t brightness;
   uint8_t stepSize;
   TBlendType blending;
@@ -61,6 +62,14 @@ std::string getAnimationIndex(AnimationState* animation);
 std::string getStepSize(AnimationState* animation);
 
 std::string getColorData(AnimationState* animation);
+
+std::string getColorPos(AnimationState* animation, uint8_t index);
+
+std::string getColorHex(AnimationState* animation, uint8_t index);
+
+void setColorPos(AnimationState* animation, uint8_t index, std::string value);
+
+void setColorHex(AnimationState* animation, uint8_t index, std::string value);
 
 void setColorData(AnimationState* animation, std::string colorData);
 

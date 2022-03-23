@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+<div>
+    <H2>Channel 9 Editor</H2>
+    <form action="/channels" method="post">
+        <input type="hidden" name="CHANNEL_INDEX" value="9" />
+        <input type="button" value="Back" onclick="history.back()"><br>
+        <label for="CHANNEL_9_enabled">Enabled: </label>
+        <input type="checkbox" id="CHANNEL_9_enabled" name="CHANNEL_9_enabled" value=true %CHANNEL_9_ENABLED%><br>
+
+        <label for="CHANNEL_9_interior">Interior: </label>
+        <input type="checkbox" id="CHANNEL_9_interior" name="CHANNEL_9_interior" value=true %CHANNEL_9_INTERIOR%><br>
+
+        <label for="CHANNEL_9_directionFlipped">DirectionFlipped: </label>
+        <input type="checkbox" id="CHANNEL_9_enabled" name="CHANNEL_9_enabled" value=true %CHANNEL_9_DIRECTIONFLIPPED%><br>
+
+        <label for="CHANNEL_9_leftTurn">LeftTurn: </label>
+        <input type="checkbox" id="CHANNEL_9_leftTurn" name="CHANNEL_9_leftTurn" value=true %CHANNEL_9_LEFTTURN%><br>
+
+        <label for="CHANNEL_9_rightTurn">RightTurn: </label>
+        <input type="checkbox" id="CHANNEL_9_rightTurn" name="CHANNEL_9_rightTurn" value=true %CHANNEL_9_RIGHTTURN%><br>
+
+        <label for="CHANNEL_9_brake">Brake: </label>
+        <input type="checkbox" id="CHANNEL_9_brake" name="CHANNEL_9_brake" value=true %CHANNEL_9_BRAKE%><br>
+
+        <label for="CHANNEL_9_reverse">Reverse: </label>
+        <input type="checkbox" id="CHANNEL_9_reverse" name="CHANNEL_9_reverse" value=true %CHANNEL_9_REVERSE%><br>
+
+        <label for="CHANNEL_9_type">Type: </label>
+        <input type="number" id="CHANNEL_9_type" name="CHANNEL_9_type" value=%CHANNEL_9_TYPE% min="0" max="1"><br>
+
+        <label for="CHANNEL_9_order">Order: </label>
+        <input type="number" id="CHANNEL_9_order" name="CHANNEL_9_order" value=%CHANNEL_9_ORDER% min="0" max="5"><br>
+
+        <label for="CHANNEL_9_numLEDs">NumLEDs: </label>
+        <input type="number" id="CHANNEL_9_numLEDs" name="CHANNEL_9_numLEDs" value=%CHANNEL_9_NUMLEDS% min="0" max="100"><br>
+        
+        <input type="submit" value="Update">
+    </form>
+    <form action="/channelsPos" method="post">
+        <input type="hidden" name="CHANNEL_INDEX" value="9" />
+        <input type="hidden" name="INITIAL" value="true" />
+        <input type="submit" value="Update Positions">
+    </form>
+</div>
+</body>
+</html>

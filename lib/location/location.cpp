@@ -762,10 +762,9 @@ void shiftColorDownCol(LocationState* state, ChannelState channels[MAX_CHANNELS]
   }
 }
 
+
 void setChannelLocations(LocationState* state, uint8_t channel, uint8_t maxPos, std::string locations){
   std::string leftToProcess = locations;
-  /*Serial.print("Positions: ");
-  Serial.println(locations.c_str());*/
   removeChannelEntries(state, channel);
   for(int i=0; i<maxPos; i++){
     char buffer[10];
@@ -826,6 +825,21 @@ std::string getChannelLocationAtPosition(LocationState* state, uint8_t channel, 
     }
   }
   return "";
+}
+
+void getChannelLocationAtPosition(LocationState* state, uint8_t channel, uint8_t pos, std::string* row, std::string* col){
+  LocationEntry *currentLocation = state->firstRowLocation;
+  while(currentLocation != NULL){
+    if(currentLocation->channel == channel && currentLocation->pos == pos){
+      char buffer[10];
+      *row = itoa(currentLocation->row, buffer, 10);
+      *col = itoa(currentLocation->col, buffer, 10);
+      return;
+    }else{
+      currentLocation = currentLocation->nextRow;
+    }
+  }
+  return;
 }
 
 void loadTestData(LocationState* state){

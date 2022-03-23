@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+    <div>
+        <H2>Switches</H2>
+        <form action="/switches" method="post">
+            <label for="leftTurn">Left Turn:</label>
+            <input type="checkbox" id="leftTurn" name="leftTurn" value=true %REPLACE_SWITCH_LEFTTURN%><br>
+            <label for="rightTurn">Right Turn:</label>
+            <input type="checkbox" id="rightTurn" name="rightTurn" value=true %REPLACE_SWITCH_RIGHTTURN%><br>
+            <label for="Reverse">Reverse:</label>
+            <input type="checkbox" id="Reverse" name="Reverse" value=true %REPLACE_SWITCH_REVERSE%><br>
+            <label for="Brake">Brake:</label>
+            <input type="checkbox" id="Brake" name="Brake" value=true %REPLACE_SWITCH_BRAKE%><br>
+            <label for="Interior">Interior:</label>
+            <input type="checkbox" id="Interior" name="Interior" value=true %REPLACE_SWITCH_INTERIOR%><br>
+            <label for="UIOverride">UIOverride:</label>
+            <input type="checkbox" id="UIOverride" name="UIOverride" value=true %REPLACE_SWITCH_UIOVERRIDE%><br>
+            <input type="submit" value="Update">
+        </form>
+    </div>
+    
+    <div>
+        <H2>Location Map</H2>
+        <textarea readonly oninput='this.style.height = "";this.style.height = this.scrollHeight + "px"'>%LOCATION_MAP%</textarea>
+    </div>
+    <div>
+        <form action="/save" method="post">
+            <input type="submit" value="Save All"> 
+        </form>
+        <form action="/defaultLocations" method="post">
+            <input type="submit" value="Default Locations"> 
+        </form>
+    </div>
+</body>
+</html>

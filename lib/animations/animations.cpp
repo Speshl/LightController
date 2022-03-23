@@ -2,6 +2,7 @@
 void setInitialState(AnimationState* animation){
   Serial.println("Start setting Initial Animation State");
   animation->animation = 0;
+  animation->palettePreset = 0; //0 is custom
   animation->stepDelay = 60;
   animation->brightness = 255;
   animation->stepSize = 1;
@@ -25,11 +26,10 @@ void setInitialState(AnimationState* animation){
   Serial.println("Finished setting Initial Animation State");
 }
 
-
-
 std::string getStateAsString(AnimationState* animation){
   std::string returnValue = "";
   returnValue += animation->animation;
+  returnValue += animation->palettePreset;
   returnValue += animation->brightness;
   returnValue += animation->stepSize;
 
@@ -60,10 +60,11 @@ std::string getStateAsString(AnimationState* animation){
 
 void setStateFromString(AnimationState* animation, std::string input){
   animation->animation = input[0];
-  animation->brightness = input[1];
-  animation->stepSize = input[2];
+  animation->palettePreset = input[1];
+  animation->brightness = input[2];
+  animation->stepSize = input[3];
 
-  switch(input[3]){
+  switch(input[4]){
     case 0:
       animation->blending = NOBLEND;
       break;
@@ -75,20 +76,61 @@ void setStateFromString(AnimationState* animation, std::string input){
   }
   
   AnimationConversion converter;
-  converter.charValue[0] = input[4];
-  converter.charValue[1] = input[5];
+  converter.charValue[0] = input[5];
+  converter.charValue[1] = input[6];
   animation->stepDelay = converter.wordValue;
 
   /*Read palette*/
   byte tempPalette[4*MAX_COLORS];
   for(int i=0; i<4*MAX_COLORS; i++){
-    animation->paletteDescription[i] = input[i+6];
-    tempPalette[i] = input[i+6];
+    animation->paletteDescription[i] = input[i+7];
+    tempPalette[i] = input[i+7];
   }
+  switch(animation->palettePreset){
+    case 0:
+      animation->palette.loadDynamicGradientPalette(tempPalette);
+      break;
+    case 1:
+      animation->palette = RainbowColors_p;
+      break;
+    case 2:
+      animation->palette = RainbowStripeColors_p;
+      break;
+    case 3:
+      animation->palette = PartyColors_p;
+      break;
+    case 4:
+      animation->palette = LavaColors_p;
+      break;
+    case 5:
+      animation->palette = HeatColors_p;
+      break;
+    case 6:
+      animation->palette = CloudColors_p;
+      break;
+    case 7:
+      animation->palette = OceanColors_p;
+      break;
+    case 8:
+      animation->palette = ForestColors_p;
+      break;
+    default:
+      animation->palette = RainbowColors_p;
+  }
+}
 
-  //https://forum.makerforums.info/t/hi-is-it-possible-to-define-a-gradient-palette-at-runtime-the-define-gradient-palette-uses-the/63339/4
-  //byte testPalette [8] = {0,255,255,0,255,0,255,255};
-  animation->palette.loadDynamicGradientPalette(tempPalette);
+void describePalette(AnimationState* animation){
+  Serial.println("Start Describing Palette");
+  for(int i=0; i<MAX_COLORS; i++){
+    Serial.print(animation->paletteDescription[i*4]);
+    Serial.print(" | ");
+    Serial.print(animation->paletteDescription[i*4+1]);
+    Serial.print(" | ");
+    Serial.print(animation->paletteDescription[i*4+2]);
+    Serial.print(" | ");
+    Serial.println(animation->paletteDescription[i*4+3]);
+  }
+  Serial.println("Done Describing Palette");
 }
 
 void describeState(AnimationState* animation){
@@ -97,6 +139,136 @@ void describeState(AnimationState* animation){
   Serial.println((uint8_t) animation->animation);//So it displays as number
   Serial.print("StepSize: ");
   Serial.println(animation->stepSize);//So it displays as number
+  Serial.print("Palette Preset: ");
+  Serial.println(animation->palettePreset);
+  describePalette(animation);
+}
+
+std::string getColorPos(AnimationState* animation, uint8_t index){
+  if(index >= 0 && index < MAX_COLORS){
+    char buffer[5];
+    uint8_t startPos = index * 4;
+    return itoa(animation->paletteDescription[startPos],buffer, 10);
+  }else{
+    return "0";
+  }
+}
+
+void setColorPos(AnimationState* animation, uint8_t index, std::string value){
+  if(index >= 0 && index < MAX_COLORS){
+    animation->paletteDescription[index*4] = atoi(value.c_str());
+  }
+}
+
+std::string getColorHex(AnimationState* animation, uint8_t index){
+  if(index >= 0 && index < MAX_COLORS){
+    std::string returnValue = "#";
+    char rValue[10];
+    char gValue[10];
+    char bValue[10];
+    uint8_t startPos = index * 4;
+
+    std::string rString = itoa(animation->paletteDescription[startPos+1],rValue, 16);
+    std::string gString= itoa(animation->paletteDescription[startPos+2],gValue, 16);
+    std::string bString= itoa(animation->paletteDescription[startPos+3],bValue, 16);
+
+    if(rString.length() <2){
+      returnValue += "0"+rString;
+    }else{
+      returnValue += rString;
+    }
+
+    if(gString.length() <2){
+      returnValue += "0"+gString;
+    }else{
+      returnValue += gString;
+    }
+
+    if(bString.length() <2){
+      returnValue += "0"+bString;
+    }else{
+      returnValue += bString;
+    }
+    return returnValue;
+  }else{
+    return "#000000";
+  }
+}
+
+void setColorHex(AnimationState* animation, uint8_t index, std::string value){
+  if(index >= 0 && index < MAX_COLORS && value.length() == 7){
+    uint8_t startPos = index * 4;
+
+    std::string rValue = value.substr(1,2);
+    std::string gValue = value.substr(3,2);
+    std::string bValue = value.substr(5,2);
+
+    animation->paletteDescription[startPos+1] = (byte)strtol(rValue.c_str(), NULL, 16);
+    animation->paletteDescription[startPos+2] = (byte)strtol(gValue.c_str(), NULL, 16);
+    animation->paletteDescription[startPos+3] = (byte)strtol(bValue.c_str(), NULL, 16);
+  }
+}
+
+std::string getAnimationIndex(AnimationState* animation){
+  char buffer[5];
+  return itoa(animation->animation,buffer, 10);
+}
+
+std::string getStepSize(AnimationState* animation){
+  char buffer[10];
+  return itoa(animation->stepSize,buffer, 10);
+}
+
+std::string getBlending(AnimationState* animation){
+  if(animation->blending == 1){
+    return "checked=true";
+  }else{
+    return "";
+  }
+}
+
+std::string getColorData(AnimationState* animation){
+  std::string fullData;
+  for(int i=0; i<40; i++){
+    if(i%4 == 0){
+      fullData += "\r\n";
+    }
+    char buffer[5];
+    int temp = animation->paletteDescription[i];
+    fullData += itoa(temp, buffer, 10);
+    if(i != 39){
+      fullData += ",";
+    }
+  }
+  return fullData;
+}
+
+void setColorData(AnimationState* animation, std::string colorData){
+  int pos = 0;
+  std::string buffer[MAX_COLORS*4];
+
+  for(int i=0; i<colorData.length(); i++){
+    if(colorData[i] == ','){
+      pos++;
+    }else if(colorData[i] != ','){
+      buffer[pos] += colorData[i];
+    }
+  }
+
+  for(int i=0; i<MAX_COLORS*4; i++){
+    int bufferInt = atoi(buffer[i].c_str());
+    animation->paletteDescription[i] = bufferInt;
+    Serial.print("Setting Palette ");
+    Serial.print(i);
+    Serial.print(" to value ");
+    Serial.println(bufferInt);
+  }
+  animation->palette.loadDynamicGradientPalette(animation->paletteDescription);
+}
+
+void animationUpdated(AnimationState* animation, ChannelState channels[MAX_CHANNELS]){
+  animation->stepIndex = 0;
+  clear(channels);
 }
 
 void solidFromPalette(AnimationState* animation, ChannelState channels[MAX_CHANNELS], SwitchState* switches, BluetoothState* bluetooth, LocationState* location){
@@ -251,66 +423,4 @@ void updateAnimation(AnimationState* animation, ChannelState channels[MAX_CHANNE
       default:
         solidFromPalette(animation, channels, switches, bluetooth, location);
   }
-}
-
-std::string getAnimationIndex(AnimationState* animation){
-  char buffer[5];
-  return itoa(animation->animation,buffer, 10);
-}
-
-std::string getStepSize(AnimationState* animation){
-  char buffer[10];
-  return itoa(animation->stepSize,buffer, 10);
-}
-
-std::string getBlending(AnimationState* animation){
-  if(animation->blending == 1){
-    return "checked=true";
-  }else{
-    return "";
-  }
-}
-
-std::string getColorData(AnimationState* animation){
-  std::string fullData;
-  for(int i=0; i<40; i++){
-    if(i%4 == 0){
-      fullData += "\r\n";
-    }
-    char buffer[5];
-    int temp = animation->paletteDescription[i];
-    fullData += itoa(temp, buffer, 10);
-    if(i != 39){
-      fullData += ",";
-    }
-  }
-  return fullData;
-}
-
-void setColorData(AnimationState* animation, std::string colorData){
-  int pos = 0;
-  std::string buffer[MAX_COLORS*4];
-
-  for(int i=0; i<colorData.length(); i++){
-    if(colorData[i] == ','){
-      pos++;
-    }else if(colorData[i] != ','){
-      buffer[pos] += colorData[i];
-    }
-  }
-
-  for(int i=0; i<MAX_COLORS*4; i++){
-    int bufferInt = atoi(buffer[i].c_str());
-    animation->paletteDescription[i] = bufferInt;
-    Serial.print("Setting Palette ");
-    Serial.print(i);
-    Serial.print(" to value ");
-    Serial.println(bufferInt);
-  }
-  animation->palette.loadDynamicGradientPalette(animation->paletteDescription);
-}
-
-void animationUpdated(AnimationState* animation, ChannelState channels[MAX_CHANNELS]){
-  animation->stepIndex = 0;
-  clear(channels);
 }

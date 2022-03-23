@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+<div>
+    <H2>Channel 15 Editor</H2>
+    <form action="/channels" method="post">
+        <input type="hidden" name="CHANNEL_INDEX" value="15" />
+        <input type="button" value="Back" onclick="history.back()"><br>
+        <label for="CHANNEL_15_enabled">Enabled: </label>
+        <input type="checkbox" id="CHANNEL_15_enabled" name="CHANNEL_15_enabled" value=true %CHANNEL_15_ENABLED%><br>
+
+        <label for="CHANNEL_15_interior">Interior: </label>
+        <input type="checkbox" id="CHANNEL_15_interior" name="CHANNEL_15_interior" value=true %CHANNEL_15_INTERIOR%><br>
+
+        <label for="CHANNEL_15_directionFlipped">DirectionFlipped: </label>
+        <input type="checkbox" id="CHANNEL_15_enabled" name="CHANNEL_15_enabled" value=true %CHANNEL_15_DIRECTIONFLIPPED%><br>
+
+        <label for="CHANNEL_15_leftTurn">LeftTurn: </label>
+        <input type="checkbox" id="CHANNEL_15_leftTurn" name="CHANNEL_15_leftTurn" value=true %CHANNEL_15_LEFTTURN%><br>
+
+        <label for="CHANNEL_15_rightTurn">RightTurn: </label>
+        <input type="checkbox" id="CHANNEL_15_rightTurn" name="CHANNEL_15_rightTurn" value=true %CHANNEL_15_RIGHTTURN%><br>
+
+        <label for="CHANNEL_15_brake">Brake: </label>
+        <input type="checkbox" id="CHANNEL_15_brake" name="CHANNEL_15_brake" value=true %CHANNEL_15_BRAKE%><br>
+
+        <label for="CHANNEL_15_reverse">Reverse: </label>
+        <input type="checkbox" id="CHANNEL_15_reverse" name="CHANNEL_15_reverse" value=true %CHANNEL_15_REVERSE%><br>
+
+        <label for="CHANNEL_15_type">Type: </label>
+        <input type="number" id="CHANNEL_15_type" name="CHANNEL_15_type" value=%CHANNEL_15_TYPE% min="0" max="1"><br>
+
+        <label for="CHANNEL_15_order">Order: </label>
+        <input type="number" id="CHANNEL_15_order" name="CHANNEL_15_order" value=%CHANNEL_15_ORDER% min="0" max="5"><br>
+
+        <label for="CHANNEL_15_numLEDs">NumLEDs: </label>
+        <input type="number" id="CHANNEL_15_numLEDs" name="CHANNEL_15_numLEDs" value=%CHANNEL_15_NUMLEDS% min="0" max="100"><br>
+        
+        <input type="submit" value="Update">
+    </form>
+    <form action="/channelsPos" method="post">
+        <input type="hidden" name="CHANNEL_INDEX" value="15" />
+        <input type="hidden" name="INITIAL" value="true" />
+        <input type="submit" value="Update Positions">
+    </form>
+</div>
+</body>
+</html>

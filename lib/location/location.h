@@ -90,6 +90,7 @@ void shiftColorDownRow(LocationState* state, ChannelState channels[MAX_CHANNELS]
 
 std::string getChannelLocations(LocationState* state, uint8_t channel, uint8_t maxPos);
 std::string getChannelLocationAtPosition(LocationState* state, uint8_t channel, uint8_t pos);
+void getChannelLocationAtPosition(LocationState* state, uint8_t channel, uint8_t pos, std::string* row, std::string* col);
 
 void setChannelLocations(LocationState* state, uint8_t channel, uint8_t maxPos, std::string locations);
 
