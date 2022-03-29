@@ -6,6 +6,7 @@
 #include <animations.h>
 #include <storage.h>
 #include <signals.h>
+#include <ESPmDNS.h>
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
 #include <SPIFFS.h>

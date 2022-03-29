@@ -277,6 +277,10 @@ CRGB getColorAtPos(ChannelState* channel, int pos){
 
 void setChannelPins(){
   for(int i=0; i<MAX_CHANNELS; i++){
+    Serial.print("Channel ");
+    Serial.print(i);
+    Serial.print(" on Pin ");
+    Serial.println(channelpins[i]);
     pinMode(channelpins[i], OUTPUT);
   }
 }
@@ -399,10 +403,10 @@ void getDefinition(ChannelState * channel, int index){
     case 0:
       switch(channel->type){
         case 0:
-          channel->controller = &FastLED.addLeds<WS2811, 23, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2811, CHANNEL_0_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         case 1:
-          channel->controller = &FastLED.addLeds<WS2812, 23, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2812, CHANNEL_0_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         default:
           //FastLED.addLeds<NEOPIXEL, 23, RGB>(channel->leds, MAX_LEDS);
@@ -412,10 +416,10 @@ void getDefinition(ChannelState * channel, int index){
     case 1:
       switch(channel->type){
         case 0:
-          channel->controller = &FastLED.addLeds<WS2811, 22, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2811, CHANNEL_1_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         case 1:
-          channel->controller = &FastLED.addLeds<WS2812, 22, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2812, CHANNEL_1_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         default:
           //FastLED.addLeds<NEOPIXEL, 22, RGB>(channel->leds, MAX_LEDS);
@@ -425,10 +429,10 @@ void getDefinition(ChannelState * channel, int index){
     case 2:
       switch(channel->type){
         case 0:
-          channel->controller = &FastLED.addLeds<WS2811, 21, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2811, CHANNEL_2_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         case 1:
-          channel->controller = &FastLED.addLeds<WS2812, 21, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2812, CHANNEL_2_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         default:
           //FastLED.addLeds<NEOPIXEL, 3, RGB>(channel->leds, MAX_LEDS);
@@ -438,10 +442,10 @@ void getDefinition(ChannelState * channel, int index){
     case 3:
       switch(channel->type){
         case 0:
-          channel->controller = &FastLED.addLeds<WS2811, 19, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2811, CHANNEL_3_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         case 1:
-          channel->controller = &FastLED.addLeds<WS2812, 19, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2812, CHANNEL_3_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         default:
           //FastLED.addLeds<NEOPIXEL, 21, RGB>(channel->leds, MAX_LEDS);
@@ -451,10 +455,10 @@ void getDefinition(ChannelState * channel, int index){
     case 4:
       switch(channel->type){
         case 0:
-          channel->controller = &FastLED.addLeds<WS2811, 18, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2811, CHANNEL_4_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         case 1:
-          channel->controller = &FastLED.addLeds<WS2812, 18, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2812, CHANNEL_4_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         default:
           //FastLED.addLeds<NEOPIXEL, 19, RGB>(channel->leds, MAX_LEDS);
@@ -464,10 +468,10 @@ void getDefinition(ChannelState * channel, int index){
     case 5:
       switch(channel->type){
         case 0:
-          channel->controller = &FastLED.addLeds<WS2811, 5, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2811, CHANNEL_5_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         case 1:
-          channel->controller = &FastLED.addLeds<WS2812, 5, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2812, CHANNEL_5_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         default:
           //FastLED.addLeds<NEOPIXEL, 18, RGB>(channel->leds, MAX_LEDS);
@@ -477,10 +481,10 @@ void getDefinition(ChannelState * channel, int index){
     case 6:
       switch(channel->type){
         case 0:
-          channel->controller = &FastLED.addLeds<WS2811, 17, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2811, CHANNEL_6_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         case 1:
-          channel->controller = &FastLED.addLeds<WS2812, 17, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2812, CHANNEL_6_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         default:
           //FastLED.addLeds<NEOPIXEL, 5, RGB>(channel->leds, MAX_LEDS);
@@ -490,10 +494,10 @@ void getDefinition(ChannelState * channel, int index){
     case 7:
       switch(channel->type){
         case 0:
-          channel->controller = &FastLED.addLeds<WS2811, 16, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2811, CHANNEL_7_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         case 1:
-          channel->controller = &FastLED.addLeds<WS2812, 16, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2812, CHANNEL_7_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         default:
           //FastLED.addLeds<NEOPIXEL, 4, RGB>(channel->leds, MAX_LEDS);
@@ -503,10 +507,10 @@ void getDefinition(ChannelState * channel, int index){
     case 8:
       switch(channel->type){
         case 0:
-          channel->controller = &FastLED.addLeds<WS2811, 4, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2811, CHANNEL_8_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         case 1:
-          channel->controller = &FastLED.addLeds<WS2812, 4, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2812, CHANNEL_8_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         default:
           //FastLED.addLeds<NEOPIXEL, 0, RGB>(channel->leds, MAX_LEDS);
@@ -516,10 +520,10 @@ void getDefinition(ChannelState * channel, int index){
     case 9:
       switch(channel->type){
         case 0:
-          channel->controller = &FastLED.addLeds<WS2811, 0, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2811, CHANNEL_9_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         case 1:
-          channel->controller = &FastLED.addLeds<WS2812, 0, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2812, CHANNEL_9_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         default:
           //FastLED.addLeds<NEOPIXEL, 2, RGB>(channel->leds, MAX_LEDS);
@@ -529,10 +533,10 @@ void getDefinition(ChannelState * channel, int index){
     case 10:
       switch(channel->type){
         case 0:
-          channel->controller = &FastLED.addLeds<WS2811, 2, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2811, CHANNEL_10_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         case 1:
-          channel->controller = &FastLED.addLeds<WS2812, 2, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2812, CHANNEL_10_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         default:
           //FastLED.addLeds<NEOPIXEL, 15, RGB>(channel->leds, MAX_LEDS);
@@ -542,10 +546,10 @@ void getDefinition(ChannelState * channel, int index){
     case 11:
       switch(channel->type){
         case 0:
-          channel->controller = &FastLED.addLeds<WS2811, 15, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2811, CHANNEL_11_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         case 1:
-          channel->controller = &FastLED.addLeds<WS2812, 15, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2812, CHANNEL_11_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         default:
           //FastLED.addLeds<NEOPIXEL, 25, RGB>(channel->leds, MAX_LEDS);
@@ -555,10 +559,10 @@ void getDefinition(ChannelState * channel, int index){
     case 12:
       switch(channel->type){
         case 0:
-          channel->controller = &FastLED.addLeds<WS2811, 13, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2811, CHANNEL_12_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         case 1:
-          channel->controller = &FastLED.addLeds<WS2812, 13, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2812, CHANNEL_12_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         default:
           //FastLED.addLeds<NEOPIXEL, 26, RGB>(channel->leds, MAX_LEDS);
@@ -568,10 +572,10 @@ void getDefinition(ChannelState * channel, int index){
     case 13:
       switch(channel->type){
         case 0:
-          channel->controller = &FastLED.addLeds<WS2811, 12, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2811, CHANNEL_13_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         case 1:
-          channel->controller = &FastLED.addLeds<WS2812, 12, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2812, CHANNEL_13_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         default:
           //FastLED.addLeds<NEOPIXEL, 14, RGB>(channel->leds, MAX_LEDS);
@@ -581,10 +585,10 @@ void getDefinition(ChannelState * channel, int index){
     case 14:
       switch(channel->type){
         case 0:
-          channel->controller = &FastLED.addLeds<WS2811, 14, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2811, CHANNEL_14_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         case 1:
-          channel->controller = &FastLED.addLeds<WS2812, 14, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2812, CHANNEL_14_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         default:
           //FastLED.addLeds<NEOPIXEL, 12, RGB>(channel->leds, MAX_LEDS);
@@ -594,10 +598,10 @@ void getDefinition(ChannelState * channel, int index){
     case 15:
       switch(channel->type){
         case 0:
-          channel->controller = &FastLED.addLeds<WS2811, 27, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2811, CHANNEL_15_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         case 1:
-          channel->controller = &FastLED.addLeds<WS2812, 27, RGB>(channel->leds, MAX_LEDS);
+          channel->controller = &FastLED.addLeds<WS2812, CHANNEL_15_PIN, RGB>(channel->leds, MAX_LEDS);
           break;
         default:
           //FastLED.addLeds<NEOPIXEL, 13, RGB>(channel->leds, MAX_LEDS);

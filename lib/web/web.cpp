@@ -299,6 +299,13 @@ void initializeAP(State* state){
       }
     });
 
+    /*if(MDNS.begin("esp32")) {
+      MDNS.addService("http", "tcp", 80);
+      Serial.println("MDNS Started");
+    }else{
+      Serial.println("MDNS did not start");
+    }*/
+
     server.begin();
 }
 
