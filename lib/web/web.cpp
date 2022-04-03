@@ -24,30 +24,6 @@ std::string getChannelPage(int index){
     return "./channel0.htm";
 }
 
-std::string getChannelPosHTML(int index){
-  char buffer[10];
-  std::string stringIndex = itoa(index, buffer, 10);
-
-  std::string returnValue = "<H2>Channel "+stringIndex+" Positions</H2>"
-                            "<form action=\"/channelsPos\" method=\"post\">"
-                            "<input type=\"hidden\" name=\"CHANNEL_INDEX\" value=\""+stringIndex+"\" />"
-                            "<input type=\"button\" value=\"Back\" onclick=\"history.back()\"><br>";
-
-  for(int i=0; i<globalState->channels[index].numLEDs; i++){
-    std::string stringPos = itoa(i, buffer, 10);
-    std::string stringRow;
-    std::string stringCol;
-    getChannelLocationAtPosition(&globalState->location, index, i, &stringRow, &stringCol);
-
-    returnValue += "<label for=\"LOC_"+stringPos+"_ROW\">"+stringPos+" Position: </label>"
-        "<input type=\"number\" id=\"LOC_"+stringPos+"_ROW\" name=\"LOC_"+stringPos+"_ROW\" value="+stringRow+" min=\"0\" max=\"63\">"
-        "<input type=\"number\" id=\"LOC_"+stringPos+"_COL\" name=\"LOC_"+stringPos+"_COL\" value="+stringCol+" min=\"0\" max=\"63\"><br>";
-  }
-
-  returnValue += "<input type=\"submit\" value=\"Update\">";
-  return returnValue;
-}
-
 void initializeAP(State* state){
     globalState = state;
     Serial.println("Starting AP...");
@@ -128,15 +104,24 @@ void initializeAP(State* state){
         AsyncWebParameter* p = request->getParam("animation", true);
         globalState->animation.animation = atoi(p->value().c_str());
       }
+
       if(request->hasParam("blending",true)){
         globalState->animation.blending = LINEARBLEND;
       }else{
         globalState->animation.blending = NOBLEND;
       }
+
       if(request->hasParam("stepSize",true)){
         AsyncWebParameter* p = request->getParam("stepSize", true);
         globalState->animation.stepSize = atoi(p->value().c_str());
       }
+
+      if(request->hasParam("colorPalette",true)){
+        AsyncWebParameter* p = request->getParam("colorPalette", true);
+        globalState->animation.palettePreset = atoi(p->value().c_str());
+        Serial.println("PalettePreset Updated");
+      }
+
 
       for(int i=0; i<MAX_COLORS; i++){
         char buffer[10];
@@ -187,26 +172,9 @@ void initializeAP(State* state){
       }
       //Build page to display
       if(request->hasParam("CHANNEL_INDEX",true)){
-        Serial.println("Building HTML");
         AsyncWebParameter* p = request->getParam("CHANNEL_INDEX", true);
         int channelIndex = atoi(p->value().c_str());
-
-        std::string headerHtml = "<!DOCTYPE html>" 
-                            "<html>"
-                            "<head>"
-                            "</head>"
-                            "<body>"
-                            "<div>";
-
-        std::string footerHtml = "</div>"
-                                "</body>"
-                                "</html>";
-
-        std::string updateHtml = getChannelPosHTML(channelIndex);
-
-        std::string fullHtml = headerHtml + updateHtml + footerHtml;
-
-        request->send(200, "text/html", fullHtml.c_str());
+        request->send(SPIFFS, "/channelLoc.htm", String(), false, channelLocProcessor(channelIndex));
       }else{
         request->send(SPIFFS, "/animation.htm", String(), false, animationProcessor);
       }
@@ -227,8 +195,10 @@ void initializeAP(State* state){
         String prefix = "CHANNEL_"+p->value();
         prefix += "_";
         if(request->hasParam(prefix+"enabled",true)){
+          Serial.println("Enabling Channel");
           globalState->channels[channelIndex].enabled = true;
         }else{
+          Serial.println("Disabling Channel");
           globalState->channels[channelIndex].enabled = false;
         }
 
@@ -298,14 +268,6 @@ void initializeAP(State* state){
         request->send(SPIFFS, "/animation.htm", String(), false, animationProcessor);
       }
     });
-
-    /*if(MDNS.begin("esp32")) {
-      MDNS.addService("http", "tcp", 80);
-      Serial.println("MDNS Started");
-    }else{
-      Serial.println("MDNS did not start");
-    }*/
-
     server.begin();
 }
 
@@ -487,3 +449,551 @@ String channelProcessor(const String& var){
   return String();
 }
 
+String channel0LocProcessor(const String& var){
+  int channelIndex = 0;
+
+  if(var == "CHANNEL_INDEX"){
+    char buffer[10];
+    String stringNumber = itoa(channelIndex,buffer,10);
+    return stringNumber;
+  }
+
+  for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
+    char buffer[10];
+    String stringNumber = itoa(i,buffer,10);
+    String prefix = "LOC_"+stringNumber+"_";
+    if(var == prefix+"HIDDEN"){
+      return "";
+    }
+    if(var == prefix+"ROW"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringRow.c_str();
+    }
+    if(var == prefix+"COL"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringCol.c_str();
+    }
+  }
+  return "hidden";
+}
+
+String channel1LocProcessor(const String& var){
+  int channelIndex = 1;
+
+  if(var == "CHANNEL_INDEX"){
+    char buffer[10];
+    String stringNumber = itoa(channelIndex,buffer,10);
+    return stringNumber;
+  }
+
+  for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
+    char buffer[10];
+    String stringNumber = itoa(i,buffer,10);
+    String prefix = "LOC_"+stringNumber+"_";
+    if(var == prefix+"HIDDEN"){
+      return "";
+    }
+    if(var == prefix+"ROW"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringRow.c_str();
+    }
+    if(var == prefix+"COL"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringCol.c_str();
+    }
+  }
+  return "hidden";
+}
+
+String channel2LocProcessor(const String& var){
+  int channelIndex = 2;
+
+  if(var == "CHANNEL_INDEX"){
+    char buffer[10];
+    String stringNumber = itoa(channelIndex,buffer,10);
+    return stringNumber;
+  }
+
+  for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
+    char buffer[10];
+    String stringNumber = itoa(i,buffer,10);
+    String prefix = "LOC_"+stringNumber+"_";
+    if(var == prefix+"HIDDEN"){
+      return "";
+    }
+    if(var == prefix+"ROW"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringRow.c_str();
+    }
+    if(var == prefix+"COL"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringCol.c_str();
+    }
+  }
+  return "hidden";
+}
+
+String channel3LocProcessor(const String& var){
+  int channelIndex = 3;
+
+  if(var == "CHANNEL_INDEX"){
+    char buffer[10];
+    String stringNumber = itoa(channelIndex,buffer,10);
+    return stringNumber;
+  }
+
+  for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
+    char buffer[10];
+    String stringNumber = itoa(i,buffer,10);
+    String prefix = "LOC_"+stringNumber+"_";
+    if(var == prefix+"HIDDEN"){
+      return "";
+    }
+    if(var == prefix+"ROW"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringRow.c_str();
+    }
+    if(var == prefix+"COL"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringCol.c_str();
+    }
+  }
+  return "hidden";
+}
+
+String channel4LocProcessor(const String& var){
+  int channelIndex = 4;
+
+  if(var == "CHANNEL_INDEX"){
+    char buffer[10];
+    String stringNumber = itoa(channelIndex,buffer,10);
+    return stringNumber;
+  }
+
+  for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
+    char buffer[10];
+    String stringNumber = itoa(i,buffer,10);
+    String prefix = "LOC_"+stringNumber+"_";
+    if(var == prefix+"HIDDEN"){
+      return "";
+    }
+    if(var == prefix+"ROW"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringRow.c_str();
+    }
+    if(var == prefix+"COL"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringCol.c_str();
+    }
+  }
+  return "hidden";
+}
+
+String channel5LocProcessor(const String& var){
+  int channelIndex = 5;
+
+  if(var == "CHANNEL_INDEX"){
+    char buffer[10];
+    String stringNumber = itoa(channelIndex,buffer,10);
+    return stringNumber;
+  }
+
+  for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
+    char buffer[10];
+    String stringNumber = itoa(i,buffer,10);
+    String prefix = "LOC_"+stringNumber+"_";
+    if(var == prefix+"HIDDEN"){
+      return "";
+    }
+    if(var == prefix+"ROW"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringRow.c_str();
+    }
+    if(var == prefix+"COL"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringCol.c_str();
+    }
+  }
+  return "hidden";
+}
+
+String channel6LocProcessor(const String& var){
+  int channelIndex = 6;
+
+  if(var == "CHANNEL_INDEX"){
+    char buffer[10];
+    String stringNumber = itoa(channelIndex,buffer,10);
+    return stringNumber;
+  }
+
+  for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
+    char buffer[10];
+    String stringNumber = itoa(i,buffer,10);
+    String prefix = "LOC_"+stringNumber+"_";
+    if(var == prefix+"HIDDEN"){
+      return "";
+    }
+    if(var == prefix+"ROW"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringRow.c_str();
+    }
+    if(var == prefix+"COL"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringCol.c_str();
+    }
+  }
+  return "hidden";
+}
+
+String channel7LocProcessor(const String& var){
+  int channelIndex = 7;
+
+  if(var == "CHANNEL_INDEX"){
+    char buffer[10];
+    String stringNumber = itoa(channelIndex,buffer,10);
+    return stringNumber;
+  }
+
+  for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
+    char buffer[10];
+    String stringNumber = itoa(i,buffer,10);
+    String prefix = "LOC_"+stringNumber+"_";
+    if(var == prefix+"HIDDEN"){
+      return "";
+    }
+    if(var == prefix+"ROW"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringRow.c_str();
+    }
+    if(var == prefix+"COL"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringCol.c_str();
+    }
+  }
+  return "hidden";
+}
+
+String channel8LocProcessor(const String& var){
+  int channelIndex = 8;
+
+  if(var == "CHANNEL_INDEX"){
+    char buffer[10];
+    String stringNumber = itoa(channelIndex,buffer,10);
+    return stringNumber;
+  }
+
+  for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
+    char buffer[10];
+    String stringNumber = itoa(i,buffer,10);
+    String prefix = "LOC_"+stringNumber+"_";
+    if(var == prefix+"HIDDEN"){
+      return "";
+    }
+    if(var == prefix+"ROW"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringRow.c_str();
+    }
+    if(var == prefix+"COL"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringCol.c_str();
+    }
+  }
+  return "hidden";
+}
+
+String channel9LocProcessor(const String& var){
+  int channelIndex = 9;
+
+  if(var == "CHANNEL_INDEX"){
+    char buffer[10];
+    String stringNumber = itoa(channelIndex,buffer,10);
+    return stringNumber;
+  }
+
+  for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
+    char buffer[10];
+    String stringNumber = itoa(i,buffer,10);
+    String prefix = "LOC_"+stringNumber+"_";
+    if(var == prefix+"HIDDEN"){
+      return "";
+    }
+    if(var == prefix+"ROW"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringRow.c_str();
+    }
+    if(var == prefix+"COL"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringCol.c_str();
+    }
+  }
+  return "hidden";
+}
+
+String channel10LocProcessor(const String& var){
+  int channelIndex = 10;
+
+  if(var == "CHANNEL_INDEX"){
+    char buffer[10];
+    String stringNumber = itoa(channelIndex,buffer,10);
+    return stringNumber;
+  }
+
+  for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
+    char buffer[10];
+    String stringNumber = itoa(i,buffer,10);
+    String prefix = "LOC_"+stringNumber+"_";
+    if(var == prefix+"HIDDEN"){
+      return "";
+    }
+    if(var == prefix+"ROW"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringRow.c_str();
+    }
+    if(var == prefix+"COL"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringCol.c_str();
+    }
+  }
+  return "hidden";
+}
+
+String channel11LocProcessor(const String& var){
+  int channelIndex = 11;
+
+  if(var == "CHANNEL_INDEX"){
+    char buffer[10];
+    String stringNumber = itoa(channelIndex,buffer,10);
+    return stringNumber;
+  }
+
+  for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
+    char buffer[10];
+    String stringNumber = itoa(i,buffer,10);
+    String prefix = "LOC_"+stringNumber+"_";
+    if(var == prefix+"HIDDEN"){
+      return "";
+    }
+    if(var == prefix+"ROW"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringRow.c_str();
+    }
+    if(var == prefix+"COL"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringCol.c_str();
+    }
+  }
+  return "hidden";
+}
+
+String channel12LocProcessor(const String& var){
+  int channelIndex = 12;
+
+  if(var == "CHANNEL_INDEX"){
+    char buffer[10];
+    String stringNumber = itoa(channelIndex,buffer,10);
+    return stringNumber;
+  }
+
+  for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
+    char buffer[10];
+    String stringNumber = itoa(i,buffer,10);
+    String prefix = "LOC_"+stringNumber+"_";
+    if(var == prefix+"HIDDEN"){
+      return "";
+    }
+    if(var == prefix+"ROW"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringRow.c_str();
+    }
+    if(var == prefix+"COL"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringCol.c_str();
+    }
+  }
+  return "hidden";
+}
+
+String channel13LocProcessor(const String& var){
+  int channelIndex = 13;
+
+  if(var == "CHANNEL_INDEX"){
+    char buffer[10];
+    String stringNumber = itoa(channelIndex,buffer,10);
+    return stringNumber;
+  }
+
+  for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
+    char buffer[10];
+    String stringNumber = itoa(i,buffer,10);
+    String prefix = "LOC_"+stringNumber+"_";
+    if(var == prefix+"HIDDEN"){
+      return "";
+    }
+    if(var == prefix+"ROW"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringRow.c_str();
+    }
+    if(var == prefix+"COL"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringCol.c_str();
+    }
+  }
+  return "hidden";
+}
+
+String channel14LocProcessor(const String& var){
+  int channelIndex = 14;
+
+  if(var == "CHANNEL_INDEX"){
+    char buffer[10];
+    String stringNumber = itoa(channelIndex,buffer,10);
+    return stringNumber;
+  }
+
+  for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
+    char buffer[10];
+    String stringNumber = itoa(i,buffer,10);
+    String prefix = "LOC_"+stringNumber+"_";
+    if(var == prefix+"HIDDEN"){
+      return "";
+    }
+    if(var == prefix+"ROW"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringRow.c_str();
+    }
+    if(var == prefix+"COL"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringCol.c_str();
+    }
+  }
+  return "hidden";
+}
+
+String channel15LocProcessor(const String& var){
+  int channelIndex = 15;
+
+  if(var == "CHANNEL_INDEX"){
+    char buffer[10];
+    String stringNumber = itoa(channelIndex,buffer,10);
+    return stringNumber;
+  }
+
+  for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
+    char buffer[10];
+    String stringNumber = itoa(i,buffer,10);
+    String prefix = "LOC_"+stringNumber+"_";
+    if(var == prefix+"HIDDEN"){
+      return "";
+    }
+    if(var == prefix+"ROW"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringRow.c_str();
+    }
+    if(var == prefix+"COL"){
+      std::string stringRow;
+      std::string stringCol;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      return stringCol.c_str();
+    }
+  }
+  return "hidden";
+}
+
+AwsTemplateProcessor channelLocProcessor(int channelIndex){
+  switch(channelIndex){
+    case 0:
+      return channel0LocProcessor;
+    case 1:
+      return channel1LocProcessor;
+    case 2:
+      return channel2LocProcessor;
+    case 3:
+      return channel3LocProcessor;
+    case 4:
+      return channel4LocProcessor;
+    case 5:
+      return channel5LocProcessor;
+    case 6:
+      return channel6LocProcessor;
+    case 7:
+      return channel7LocProcessor;
+    case 8:
+      return channel8LocProcessor;
+    case 9:
+      return channel9LocProcessor;
+    case 10:
+      return channel10LocProcessor;
+    case 11:
+      return channel11LocProcessor;
+    case 12:
+      return channel12LocProcessor;
+    case 13:
+      return channel13LocProcessor;
+    case 14:
+      return channel14LocProcessor;
+    case 15:
+      return channel15LocProcessor;
+  }
+}

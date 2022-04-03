@@ -31,6 +31,8 @@ String miscProcessor(const String& var);
 
 String channelProcessor(const String& var);
 
+AwsTemplateProcessor channelLocProcessor(int channelIndex);
+
 int getClientCount();
 
 #endif

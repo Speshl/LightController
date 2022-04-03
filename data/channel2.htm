@@ -5,18 +5,20 @@
 <body>
 <div>
     <H2>Channel %CHANNEL_2_INDEX% Editor</H2>
+    <form action="/" method=""> 
+        <input type="submit" value="Home""><br>
+    </form>
     <form action="/channels" method="post">
         <input type="hidden" name="CHANNEL_INDEX" value="2" />
-        <input type="button" value="Back" onclick="history.back()"><br>
         <label for="CHANNEL_2_enabled">Enabled: </label>
         <input type="checkbox" id="CHANNEL_2_enabled" name="CHANNEL_2_enabled" value=true %CHANNEL_2_ENABLED%><br>
 
         <label for="CHANNEL_2_interior">Interior: </label>
         <input type="checkbox" id="CHANNEL_2_interior" name="CHANNEL_2_interior" value=true %CHANNEL_2_INTERIOR%><br>
-
+<!--
         <label for="CHANNEL_2_directionFlipped">DirectionFlipped: </label>
         <input type="checkbox" id="CHANNEL_2_enabled" name="CHANNEL_2_enabled" value=true %CHANNEL_2_DIRECTIONFLIPPED%><br>
-
+-->
         <label for="CHANNEL_2_leftTurn">LeftTurn: </label>
         <input type="checkbox" id="CHANNEL_2_leftTurn" name="CHANNEL_2_leftTurn" value=true %CHANNEL_2_LEFTTURN%><br>
 
@@ -38,7 +40,7 @@
         <label for="CHANNEL_2_numLEDs">NumLEDs: </label>
         <input type="number" id="CHANNEL_2_numLEDs" name="CHANNEL_2_numLEDs" value=%CHANNEL_2_NUMLEDS% min="0" max="100"><br>
         
-        <input type="submit" value="Update">
+        <input type="submit" value="Apply Changes"><br>
     </form>
     <form action="/channelsPos" method="post">
         <input type="hidden" name="CHANNEL_INDEX" value="2" />
