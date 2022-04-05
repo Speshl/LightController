@@ -3,7 +3,7 @@ void setInitialState(AnimationState* animation){
   Serial.println("Start setting Initial Animation State");
   animation->animation = 0;
   animation->palettePreset = 0; //0 is custom
-  animation->stepDelay = 60;
+  animation->fps = 20;
   animation->brightness = 255;
   animation->stepSize = 1;
   animation->blending = LINEARBLEND;
@@ -45,10 +45,11 @@ std::string getStateAsString(AnimationState* animation){
   }
   
 
-  AnimationConversion converter;
+  /*AnimationConversion converter;
   converter.wordValue = animation->stepDelay;
   returnValue += converter.charValue[0];
-  returnValue += converter.charValue[1];
+  returnValue += converter.charValue[1];*/
+  returnValue += animation->fps;
 
   /*Save palette*/
   for(int i=0; i<MAX_COLORS*4; i++){
@@ -75,16 +76,17 @@ void setStateFromString(AnimationState* animation, std::string input){
       animation->blending = LINEARBLEND;
   }
   
-  AnimationConversion converter;
+  /*AnimationConversion converter;
   converter.charValue[0] = input[5];
   converter.charValue[1] = input[6];
-  animation->stepDelay = converter.wordValue;
+  animation->stepDelay = converter.wordValue;*/
+  animation->fps = input[5];
 
   /*Read palette*/
   byte tempPalette[4*MAX_COLORS];
   for(int i=0; i<4*MAX_COLORS; i++){
-    animation->paletteDescription[i] = input[i+7];
-    tempPalette[i] = input[i+7];
+    animation->paletteDescription[i] = input[i+6];
+    tempPalette[i] = input[i+6];
   }
   switch(animation->palettePreset){
     case 0:
@@ -137,6 +139,10 @@ void describeState(AnimationState* animation){
   Serial.println("Describing Animation State - ");
   Serial.print("Animation: ");
   Serial.println((uint8_t) animation->animation);//So it displays as number
+  Serial.print("FPS: ");
+  Serial.println((uint8_t) animation->fps);//So it displays as number
+  Serial.print("Brightness: ");
+  Serial.println((uint8_t) animation->brightness);//So it displays as number
   Serial.print("StepSize: ");
   Serial.println(animation->stepSize);//So it displays as number
   Serial.print("Palette Preset: ");
@@ -217,6 +223,16 @@ std::string getAnimationIndex(AnimationState* animation){
 std::string getStepSize(AnimationState* animation){
   char buffer[10];
   return itoa(animation->stepSize,buffer, 10);
+}
+
+std::string getFPS(AnimationState* animation){
+  char buffer[10];
+  return itoa(animation->fps,buffer, 10);
+}
+
+std::string getBrightness(AnimationState* animation){
+  char buffer[10];
+  return itoa(animation->brightness,buffer, 10);
 }
 
 std::string getBlending(AnimationState* animation){
@@ -393,10 +409,11 @@ void rightTurnAnimationWithColor(ChannelState channels[MAX_CHANNELS], SwitchStat
 }
 
 uint16_t getStepDelay(AnimationState* animation, uint16_t frameTime){
-  if(frameTime > animation->stepDelay){
+  int delayTarget = floor(1000/animation->fps);
+  if(frameTime > delayTarget){
     return 1;
   }else{
-      return animation->stepDelay - frameTime;
+      return delayTarget - frameTime;
   }
 }
 

@@ -18,7 +18,7 @@ struct AnimationState {
   uint8_t brightness;
   uint8_t stepSize;
   TBlendType blending;
-  uint16_t stepDelay;
+  uint8_t fps;
   byte paletteDescription[MAX_COLORS*4];
   //Below not used to rebuild state
   CRGBPalette16 palette;
@@ -76,5 +76,9 @@ void setColorData(AnimationState* animation, std::string colorData);
 std::string getBlending(AnimationState* animation);
 
 void animationUpdated(AnimationState* animation, ChannelState channels[MAX_CHANNELS]);
+
+std::string getFPS(AnimationState* animation);
+
+std::string getBrightness(AnimationState* animation);
 
 #endif

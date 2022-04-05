@@ -105,6 +105,16 @@ void initializeAP(State* state){
         globalState->animation.animation = atoi(p->value().c_str());
       }
 
+      if(request->hasParam("fps",true)){
+        AsyncWebParameter* p = request->getParam("fps", true);
+        globalState->animation.fps = atoi(p->value().c_str());
+      }
+
+      if(request->hasParam("brightness",true)){
+        AsyncWebParameter* p = request->getParam("brightness", true);
+        globalState->animation.brightness = atoi(p->value().c_str());
+      }
+
       if(request->hasParam("blending",true)){
         globalState->animation.blending = LINEARBLEND;
       }else{
@@ -119,7 +129,6 @@ void initializeAP(State* state){
       if(request->hasParam("colorPalette",true)){
         AsyncWebParameter* p = request->getParam("colorPalette", true);
         globalState->animation.palettePreset = atoi(p->value().c_str());
-        Serial.println("PalettePreset Updated");
       }
 
 
@@ -298,6 +307,12 @@ void OnWiFiEvent(WiFiEvent_t event){
 String animationProcessor(const String& var){
   if(var == "REPLACE_ANIMATION_INDEX"){
     return getAnimationIndex(&globalState->animation).c_str();
+  }
+  if(var == "REPLACE_ANIMATION_FPS"){
+    return getFPS(&globalState->animation).c_str();
+  }
+  if(var == "REPLACE_ANIMATION_BRIGHTNESS"){
+    return getBrightness(&globalState->animation).c_str();
   }
   if(var == "REPLACE_ANIMATION_BLEND"){
     return getBlending(&globalState->animation).c_str();
