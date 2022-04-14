@@ -1,53 +1,104 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+    <style>
+        .page-grid {
+            display: grid;
+            grid-template-columns: auto 400px auto;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 100px 100px;
+            width: 200px;
+            margin: auto;
+            gap: 5px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        .left-column {
+            text-align: right;
+        }
+
+        .middle-column {
+            text-align: center;
+        }
+
+        .right-column {
+            text-align: left;
+        }
+    </style>
 </head>
+
 <body>
-<div>
-    <H2>Channel 1 Editor</H2>
-    <form action="/" method=""> 
-        <input type="submit" value="Home""><br>
-    </form>
-    <form action="/channels" method="post">
-        <input type="hidden" name="CHANNEL_INDEX" value="1" />
+    <div class="page-grid">
+        <div></div>
+        <div class="middle-column">
+            <H2>Channel 1 Editor</H2>
+            <form action="/" method="">
+                <input type="submit" value="Home">
+            </form>
+            <form action=" /channels" method="post" class="options-grid">
+                <input type="hidden" name="CHANNEL_INDEX" value="1" />
 
-        <label for="CHANNEL_1_enabled">Enabled: </label>
-        <input type="checkbox" id="CHANNEL_1_enabled" name="CHANNEL_1_enabled" value=true %CHANNEL_1_ENABLED%><br>
+                <label for="CHANNEL_1_enabled" class="left-column">Enabled: </label>
+                <input type="checkbox" id="CHANNEL_1_enabled" name="CHANNEL_1_enabled" value=true %CHANNEL_1_ENABLED%>
 
-        <label for="CHANNEL_1_interior">Interior: </label>
-        <input type="checkbox" id="CHANNEL_1_interior" name="CHANNEL_1_interior" value=true %CHANNEL_1_INTERIOR%><br>
-<!--
+                <label for="CHANNEL_1_interior" class="left-column">Interior: </label>
+                <input type="checkbox" id="CHANNEL_1_interior" name="CHANNEL_1_interior" value=true
+                    %CHANNEL_1_INTERIOR%>
+                <!--
         <label for="CHANNEL_1_directionFlipped">DirectionFlipped: </label>
-        <input type="checkbox" id="CHANNEL_1_enabled" name="CHANNEL_1_enabled" value=true %CHANNEL_1_DIRECTIONFLIPPED%><br>
+        <input type="checkbox" id="CHANNEL_1_enabled" name="CHANNEL_1_enabled" value=true %CHANNEL_1_DIRECTIONFLIPPED%>
 -->
-        <label for="CHANNEL_1_leftTurn">LeftTurn: </label>
-        <input type="checkbox" id="CHANNEL_1_leftTurn" name="CHANNEL_1_leftTurn" value=true %CHANNEL_1_LEFTTURN%><br>
+                <label for="CHANNEL_1_leftTurn" class="left-column">LeftTurn: </label>
+                <input type="checkbox" id="CHANNEL_1_leftTurn" name="CHANNEL_1_leftTurn" value=true
+                    %CHANNEL_1_LEFTTURN%>
 
-        <label for="CHANNEL_1_rightTurn">RightTurn: </label>
-        <input type="checkbox" id="CHANNEL_1_rightTurn" name="CHANNEL_1_rightTurn" value=true %CHANNEL_1_RIGHTTURN%><br>
+                <label for="CHANNEL_1_rightTurn" class="left-column">RightTurn: </label>
+                <input type="checkbox" id="CHANNEL_1_rightTurn" name="CHANNEL_1_rightTurn" value=true
+                    %CHANNEL_1_RIGHTTURN%>
 
-        <label for="CHANNEL_1_brake">Brake: </label>
-        <input type="checkbox" id="CHANNEL_1_brake" name="CHANNEL_1_brake" value=true %CHANNEL_1_BRAKE%><br>
+                <label for="CHANNEL_1_brake" class="left-column">Brake: </label>
+                <input type="checkbox" id="CHANNEL_1_brake" name="CHANNEL_1_brake" value=true %CHANNEL_1_BRAKE%>
 
-        <label for="CHANNEL_1_reverse">Reverse: </label>
-        <input type="checkbox" id="CHANNEL_1_reverse" name="CHANNEL_1_reverse" value=true %CHANNEL_1_REVERSE%><br>
+                <label for="CHANNEL_1_reverse" class="left-column">Reverse: </label>
+                <input type="checkbox" id="CHANNEL_1_reverse" name="CHANNEL_1_reverse" value=true %CHANNEL_1_REVERSE%>
 
-        <label for="CHANNEL_1_type">Type: </label>
-        <input type="number" id="CHANNEL_1_type" name="CHANNEL_1_type" value=%CHANNEL_1_TYPE% min="0" max="1"><br>
+                <label for="CHANNEL_1_type" class="left-column">Type: </label>
+                <select name="CHANNEL_1_type" id="CHANNEL_1_type">
+                    <option value="0" %TYPE0_CHANNEL_1_SELECTED%>WS2811</option>
+                    <option value="1" %TYPE1_CHANNEL_1_SELECTED%>WS2812</option>
+                </select>
+                <label for="CHANNEL_1_order" class="left-column">Order: </label>
+                <select name="CHANNEL_1_order" id="CHANNEL_1_order">
+                    <option value="0" %RGB_CHANNEL_1_SELECTED%>RGB</option>
+                    <option value="1" %RBG_CHANNEL_1_SELECTED%>RBG</option>
+                    <option value="2" %BRG_CHANNEL_1_SELECTED%>BRG</option>
+                    <option value="3" %BGR_CHANNEL_1_SELECTED%>BGR</option>
+                    <option value="4" %GBR_CHANNEL_1_SELECTED%>GBR</option>
+                    <option value="5" %GRB_CHANNEL_1_SELECTED%>GRB</option>
+                </select>
+                <label for="CHANNEL_1_numLEDs" class="left-column"># LEDs: </label>
+                <input type="number" id="CHANNEL_1_numLEDs" name="CHANNEL_1_numLEDs" value=%CHANNEL_1_NUMLEDS% min="0"
+                    max="100">
 
-        <label for="CHANNEL_1_order">Order: </label>
-        <input type="number" id="CHANNEL_1_order" name="CHANNEL_1_order" value=%CHANNEL_1_ORDER% min="0" max="5"><br>
+                <div></div>
+                <input type="submit" value="Update">
+            </form>
+            <form action="/channelsPos" method="post">
+                <h3>Place Pixels on Grid</h3>
+                <input type="hidden" name="CHANNEL_INDEX" value="1" />
+                <input type="hidden" name="INITIAL" value="true" />
+                <input type="submit" value="Place Pixels"><br>
+                <label>*Note: # Leds should be entered and updated before attempting to place pixels</label>
 
-        <label for="CHANNEL_1_numLEDs">NumLEDs: </label>
-        <input type="number" id="CHANNEL_1_numLEDs" name="CHANNEL_1_numLEDs" value=%CHANNEL_1_NUMLEDS% min="0" max="100"><br>
-        
-        <input type="submit" value="Apply Changes"><br>
-    </form>
-    <form action="/channelsPos" method="post">
-        <input type="hidden" name="CHANNEL_INDEX" value="1" />
-        <input type="hidden" name="INITIAL" value="true" />
-        <input type="submit" value="Update Positions">
-    </form>
-</div>
+            </form>
+        </div>
+        <div></div>
+    </div>
 </body>
+
 </html>

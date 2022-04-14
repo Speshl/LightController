@@ -9,7 +9,7 @@
 #include "string"
 
 
-#define ANIMATION_STATE_LENGTH 47
+#define ANIMATION_STATE_LENGTH 46
 #define MAX_COLORS 10
 
 struct AnimationState {

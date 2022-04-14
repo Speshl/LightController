@@ -1,23 +1,51 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <style>
+        .page-grid {
+            display: grid;
+            grid-template-columns: auto 400px auto;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 100px 100px;
+            width: 200px;
+            margin: auto;
+            gap: 5px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        .left-column {
+            text-align: right;
+        }
+
+        .middle-column {
+            text-align: center;
+        }
+
+        .right-column {
+            text-align: left;
+        }
+    </style>
 </head>
 <body>
     <div>
         <H2>Switches</H2>
         <form action="/switches" method="post">
             <label for="leftTurn">Left Turn:</label>
-            <input type="checkbox" id="leftTurn" name="leftTurn" value=true %REPLACE_SWITCH_LEFTTURN%><br>
+            <input type="checkbox" id="leftTurn" name="leftTurn" value=true %REPLACE_SWITCH_LEFTTURN%>
             <label for="rightTurn">Right Turn:</label>
-            <input type="checkbox" id="rightTurn" name="rightTurn" value=true %REPLACE_SWITCH_RIGHTTURN%><br>
-            <label for="Reverse">Reverse:</label>
-            <input type="checkbox" id="Reverse" name="Reverse" value=true %REPLACE_SWITCH_REVERSE%><br>
-            <label for="Brake">Brake:</label>
-            <input type="checkbox" id="Brake" name="Brake" value=true %REPLACE_SWITCH_BRAKE%><br>
-            <label for="Interior">Interior:</label>
-            <input type="checkbox" id="Interior" name="Interior" value=true %REPLACE_SWITCH_INTERIOR%><br>
+            <input type="checkbox" id="rightTurn" name="rightTurn" value=true %REPLACE_SWITCH_RIGHTTURN%>
+            <label for="Reverse"class="left-column">Reverse:</label>
+            <input type="checkbox" id="Reverse" name="Reverse" value=true %REPLACE_SWITCH_REVERSE%>
+            <label for="Brake"class="left-column">Brake:</label>
+            <input type="checkbox" id="Brake" name="Brake" value=true %REPLACE_SWITCH_BRAKE%>
+            <label for="Interior"class="left-column">Interior:</label>
+            <input type="checkbox" id="Interior" name="Interior" value=true %REPLACE_SWITCH_INTERIOR%>
             <label for="UIOverride">UIOverride:</label>
-            <input type="checkbox" id="UIOverride" name="UIOverride" value=true %REPLACE_SWITCH_UIOVERRIDE%><br>
+            <input type="checkbox" id="UIOverride" name="UIOverride" value=true %REPLACE_SWITCH_UIOVERRIDE%>
             <input type="submit" value="Update">
         </form>
     </div>

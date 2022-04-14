@@ -91,33 +91,43 @@ void setStateFromString(AnimationState* animation, std::string input){
   switch(animation->palettePreset){
     case 0:
       animation->palette.loadDynamicGradientPalette(tempPalette);
+      Serial.println("Using Custom Palette");
       break;
     case 1:
       animation->palette = RainbowColors_p;
+      Serial.println("Using Rainbow Palette");
       break;
     case 2:
       animation->palette = RainbowStripeColors_p;
+      Serial.println("Using RainbowStrip Palette");
       break;
     case 3:
       animation->palette = PartyColors_p;
+      Serial.println("Using Party Palette");
       break;
     case 4:
       animation->palette = LavaColors_p;
+      Serial.println("Using Lava Palette");
       break;
     case 5:
       animation->palette = HeatColors_p;
+      Serial.println("Using Heat Palette");
       break;
     case 6:
       animation->palette = CloudColors_p;
+      Serial.println("Using Cloud Palette");
       break;
     case 7:
       animation->palette = OceanColors_p;
+      Serial.println("Using Ocean Palette");
       break;
     case 8:
       animation->palette = ForestColors_p;
+      Serial.println("Using Forest Palette");
       break;
     default:
       animation->palette = RainbowColors_p;
+      Serial.println("Using DEFAULT Palette");
   }
 }
 

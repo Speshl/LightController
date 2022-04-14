@@ -147,6 +147,7 @@ void initializeAP(State* state){
       }
       animationUpdated(&globalState->animation, globalState->channels);
       saveAnimationState(&globalState->preferences, getStateAsString(&globalState->animation));
+      setStateFromString(&globalState->animation, getStateAsString(&globalState->animation));
       request->send(SPIFFS, "/animation.htm", String(), false, animationProcessor);
     });
 
@@ -249,18 +250,18 @@ void initializeAP(State* state){
 
         if(request->hasParam(prefix+"type",true)){
           AsyncWebParameter* p = request->getParam(prefix+"type", true);
-          char newType = atoi(p->value().c_str());
+          int newType = atoi(p->value().c_str());
           if(newType != globalState->channels[channelIndex].type){
-            globalState->channels[channelIndex].type = 
+            globalState->channels[channelIndex].type = newType;
             globalState->channels[channelIndex].restartRequired = true;
           }
         }
 
         if(request->hasParam(prefix+"order",true)){
           AsyncWebParameter* p = request->getParam(prefix+"order", true);
-          char newOrder = atoi(p->value().c_str());
+          int newOrder = atoi(p->value().c_str());
           if(newOrder != globalState->channels[channelIndex].order){
-            globalState->channels[channelIndex].order = atoi(p->value().c_str());
+            globalState->channels[channelIndex].order = newOrder;
             //globalState->channels[channelIndex].restartRequired = true;
           }
         }
@@ -305,8 +306,47 @@ void OnWiFiEvent(WiFiEvent_t event){
 }
 
 String animationProcessor(const String& var){
-  if(var == "REPLACE_ANIMATION_INDEX"){
-    return getAnimationIndex(&globalState->animation).c_str();
+  if(var == "SOLID_ANIMATION_SELECTED"){
+    if(globalState->animation.animation == 0){
+        return "selected";
+    }else{
+        return "";
+    }
+  }
+  if(var == "SWEEPUP_ANIMATION_SELECTED"){
+    if(globalState->animation.animation == 1){
+        return "selected";
+    }else{
+        return "";
+    }
+  }
+  if(var == "SWEEPDOWN_ANIMATION_SELECTED"){
+    if(globalState->animation.animation == 2){
+        return "selected";
+    }else{
+        return "";
+    }
+  }
+  if(var == "SWEEPRIGHT_ANIMATION_SELECTED"){
+    if(globalState->animation.animation == 3){
+        return "selected";
+    }else{
+        return "";
+    }
+  }
+  if(var == "SWEEPLEFT_ANIMATION_SELECTED"){
+    if(globalState->animation.animation == 4){
+        return "selected";
+    }else{
+        return "";
+    }
+  }
+  if(var == "SPINCLOCK_ANIMATION_SELECTED"){
+    if(globalState->animation.animation == 5){
+        return "selected";
+    }else{
+        return "";
+    }
   }
   if(var == "REPLACE_ANIMATION_FPS"){
     return getFPS(&globalState->animation).c_str();
@@ -451,12 +491,79 @@ String channelProcessor(const String& var){
     if( var == prefix+"REVERSE"){
       return getChannelReverse(&globalState->channels[i]).c_str();
     }
-    if( var == prefix+"TYPE"){
-      return getChannelType(&globalState->channels[i]).c_str();
+
+    if( var == "TYPE0_"+prefix+"SELECTED"){
+      if(globalState->channels[i].type == 0){
+        return "selected";
+      }
+      else{
+        return "";
+      }
     }
-    if( var == prefix+"ORDER"){
-      return getChannelOrder(&globalState->channels[i]).c_str();
+
+    if( var == "TYPE1_"+prefix+"SELECTED"){
+      if(globalState->channels[i].type == 1){
+        return "selected";
+      }
+      else{
+        return "";
+      }
     }
+
+    if( var == "RGB_"+prefix+"SELECTED"){
+      if(globalState->channels[i].order == 0){
+        return "selected";
+      }
+      else{
+        return "";
+      }
+    }
+
+    if( var == "RBG_"+prefix+"SELECTED"){
+      if(globalState->channels[i].order == 1){
+        return "selected";
+      }
+      else{
+        return "";
+      }
+    }
+
+    if( var == "BRG_"+prefix+"SELECTED"){
+      if(globalState->channels[i].order == 2){
+        return "selected";
+      }
+      else{
+        return "";
+      }
+    }
+
+    if( var == "BGR_"+prefix+"SELECTED"){
+      if(globalState->channels[i].order == 3){
+        return "selected";
+      }
+      else{
+        return "";
+      }
+    }
+
+    if( var == "GBR_"+prefix+"SELECTED"){
+      if(globalState->channels[i].order == 4){
+        return "selected";
+      }
+      else{
+        return "";
+      }
+    }
+
+    if( var == "GRB_"+prefix+"SELECTED"){
+      if(globalState->channels[i].order == 5){
+        return "selected";
+      }
+      else{
+        return "";
+      }
+    }
+
     if( var == prefix+"NUMLEDS"){
       return getChannelNumLEDs(&globalState->channels[i]).c_str();
     }
@@ -478,7 +585,7 @@ String channel0LocProcessor(const String& var){
     String stringNumber = itoa(i,buffer,10);
     String prefix = "LOC_"+stringNumber+"_";
     if(var == prefix+"HIDDEN"){
-      return "";
+      return "class=\"pos-grid\"";
     }
     if(var == prefix+"ROW"){
       std::string stringRow;
@@ -1010,5 +1117,7 @@ AwsTemplateProcessor channelLocProcessor(int channelIndex){
       return channel14LocProcessor;
     case 15:
       return channel15LocProcessor;
+    default:
+      return channel0LocProcessor;
   }
 }

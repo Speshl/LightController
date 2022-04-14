@@ -96,8 +96,8 @@ struct ChannelState {
   bool rightTurn;
   bool brake;
   bool reverse;
-  char type;
-  char order;
+  uint16_t type;
+  uint16_t order;
   uint16_t numLEDs;
   //Below not needed to rebuild
   CRGB leds[MAX_LEDS];
