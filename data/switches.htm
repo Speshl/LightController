@@ -24,16 +24,19 @@
         .middle-column {
             text-align: center;
         }
-
-        .right-column {
-            text-align: left;
-        }
     </style>
 </head>
 <body>
-    <div>
+    <div class="page-grid">
+    <div class="left-column">
+        <input type="button" value="Back" onclick="history.back()">
+    </div>
+    <div class="middle-column">
+        <form action="/" method="">
+            <input type="submit" value="Home">
+        </form>
         <H2>Switches</H2>
-        <form action="/switches" method="post">
+        <form action="/switches" method="post" class="options-grid">
             <label for="leftTurn">Left Turn:</label>
             <input type="checkbox" id="leftTurn" name="leftTurn" value=true %REPLACE_SWITCH_LEFTTURN%>
             <label for="rightTurn">Right Turn:</label>
@@ -46,21 +49,15 @@
             <input type="checkbox" id="Interior" name="Interior" value=true %REPLACE_SWITCH_INTERIOR%>
             <label for="UIOverride">UIOverride:</label>
             <input type="checkbox" id="UIOverride" name="UIOverride" value=true %REPLACE_SWITCH_UIOVERRIDE%>
+            <div></div>
             <input type="submit" value="Update">
         </form>
+        <div>
+            <form action="/save" method="post">
+                <input type="submit" value="Write Changes"> 
+            </form>
+        </div>
     </div>
-    
-    <div>
-        <H2>Location Map</H2>
-        <textarea readonly oninput='this.style.height = "";this.style.height = this.scrollHeight + "px"'>%LOCATION_MAP%</textarea>
-    </div>
-    <div>
-        <form action="/save" method="post">
-            <input type="submit" value="Save All"> 
-        </form>
-        <form action="/defaultLocations" method="post">
-            <input type="submit" value="Default Locations"> 
-        </form>
-    </div>
+</div>
 </body>
 </html>

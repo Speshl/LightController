@@ -25,9 +25,11 @@ void initializeAP(State* state);
 
 void OnWiFiEvent(WiFiEvent_t event);
 
+String viewProcessor(const String& var);
+
 String animationProcessor(const String& var);
 
-String miscProcessor(const String& var);
+String switchesProcessor(const String& var);
 
 String channelProcessor(const String& var);
 

@@ -38,22 +38,25 @@ void initializeAP(State* state){
     server.on("/", HTTP_GET, [](AsyncWebServerRequest * request){
         request->send(SPIFFS, "/animation.htm", String(), false, animationProcessor);
     });
-    server.on("/misc", HTTP_GET, [](AsyncWebServerRequest * request){
-        request->send(SPIFFS, "/misc.htm", String(), false, miscProcessor);
+    server.on("/switches", HTTP_GET, [](AsyncWebServerRequest * request){
+        request->send(SPIFFS, "/switches.htm", String(), false, switchesProcessor);
     });
     server.on("/animation", HTTP_GET, [](AsyncWebServerRequest * request){
         request->send(SPIFFS, "/animation.htm", String(), false, animationProcessor);
     });
+    server.on("/view", HTTP_GET, [](AsyncWebServerRequest * request){
+        request->send(SPIFFS, "/view.htm", String(), false, viewProcessor);
+    });
     server.on("/save", HTTP_POST, [](AsyncWebServerRequest * request){
         saveState2(globalState);
-        request->send(SPIFFS, "/misc.htm", String(), false, miscProcessor);
+        request->send(SPIFFS, "/switches.htm", String(), false, switchesProcessor);
     });
     server.on("/defaultLocations", HTTP_POST, [](AsyncWebServerRequest * request){
         
         removeAllEntries(&globalState->location);
         setInitialState(&globalState->location);
         saveState2(globalState); //save so that it gets reloaded next time
-        request->send(SPIFFS, "/misc.htm", String(), false, miscProcessor);
+        request->send(SPIFFS, "/switches.htm", String(), false, switchesProcessor);
     });
     server.on("/switches", HTTP_POST, [](AsyncWebServerRequest * request){
         if(request->hasParam("leftTurn",true)){
@@ -96,7 +99,7 @@ void initializeAP(State* state){
         //describeState(&globalState->switches);
         saveSwitchState(&globalState->preferences, getStateAsString(&globalState->switches));
         
-        request->send(SPIFFS, "/misc.htm", String(), false, miscProcessor);
+        request->send(SPIFFS, "/switches.htm", String(), false, switchesProcessor);
     });
 
     server.on("/animation", HTTP_POST, [](AsyncWebServerRequest * request){
@@ -305,6 +308,19 @@ void OnWiFiEvent(WiFiEvent_t event){
     }
 }
 
+String viewProcessor(const String& var){
+  if(var == "NUM_ROWS"){
+    return String(LOCATION_GRID_SIZE+1);
+  }
+  if(var == "NUM_COLS"){
+    return String((LOCATION_GRID_SIZE*3)+10);
+  }
+  if(var == "LOCATION_MAP"){
+    return getLocationGrid(&globalState->location).c_str();
+  }
+  return String();
+}
+
 String animationProcessor(const String& var){
   if(var == "SOLID_ANIMATION_SELECTED"){
     if(globalState->animation.animation == 0){
@@ -439,10 +455,7 @@ String animationProcessor(const String& var){
   return String();
 }
 
-String miscProcessor(const String& var){
-  if(var == "LOCATION_MAP"){
-    return getLocationGrid(&globalState->location).c_str();
-  }
+String switchesProcessor(const String& var){
   if(var == "REPLACE_SWITCH_LEFTTURN"){
     return getLeftTurn(&globalState->switches).c_str();
   }
@@ -580,6 +593,16 @@ String channel0LocProcessor(const String& var){
     return stringNumber;
   }
 
+  if(var == "MIN_COL" || var == "MIN_ROW"){
+    return "0";
+  }
+  if(var == "MAX_COL" || var == "MAX_ROW"){
+    return String(LOCATION_GRID_SIZE - 1);
+  }
+  if(var == "NUM_POS"){
+    return String(globalState->channels[channelIndex].numLEDs);
+  }
+
   for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
     char buffer[10];
     String stringNumber = itoa(i,buffer,10);
@@ -610,6 +633,16 @@ String channel1LocProcessor(const String& var){
     char buffer[10];
     String stringNumber = itoa(channelIndex,buffer,10);
     return stringNumber;
+  }
+
+  if(var == "MIN_COL" || var == "MIN_ROW"){
+    return "0";
+  }
+  if(var == "MAX_COL" || var == "MAX_ROW"){
+    return String(LOCATION_GRID_SIZE - 1);
+  }
+  if(var == "MAX_POS"){
+    return String(globalState->channels[channelIndex].numLEDs);
   }
 
   for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
@@ -644,6 +677,16 @@ String channel2LocProcessor(const String& var){
     return stringNumber;
   }
 
+  if(var == "MIN_COL" || var == "MIN_ROW"){
+    return "0";
+  }
+  if(var == "MAX_COL" || var == "MAX_ROW"){
+    return String(LOCATION_GRID_SIZE - 1);
+  }
+  if(var == "MAX_POS"){
+    return String(globalState->channels[channelIndex].numLEDs);
+  }
+
   for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
     char buffer[10];
     String stringNumber = itoa(i,buffer,10);
@@ -674,6 +717,16 @@ String channel3LocProcessor(const String& var){
     char buffer[10];
     String stringNumber = itoa(channelIndex,buffer,10);
     return stringNumber;
+  }
+
+  if(var == "MIN_COL" || var == "MIN_ROW"){
+    return "0";
+  }
+  if(var == "MAX_COL" || var == "MAX_ROW"){
+    return String(LOCATION_GRID_SIZE - 1);
+  }
+  if(var == "MAX_POS"){
+    return String(globalState->channels[channelIndex].numLEDs);
   }
 
   for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
@@ -708,6 +761,16 @@ String channel4LocProcessor(const String& var){
     return stringNumber;
   }
 
+  if(var == "MIN_COL" || var == "MIN_ROW"){
+    return "0";
+  }
+  if(var == "MAX_COL" || var == "MAX_ROW"){
+    return String(LOCATION_GRID_SIZE - 1);
+  }
+  if(var == "MAX_POS"){
+    return String(globalState->channels[channelIndex].numLEDs);
+  }
+
   for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
     char buffer[10];
     String stringNumber = itoa(i,buffer,10);
@@ -738,6 +801,16 @@ String channel5LocProcessor(const String& var){
     char buffer[10];
     String stringNumber = itoa(channelIndex,buffer,10);
     return stringNumber;
+  }
+
+  if(var == "MIN_COL" || var == "MIN_ROW"){
+    return "0";
+  }
+  if(var == "MAX_COL" || var == "MAX_ROW"){
+    return String(LOCATION_GRID_SIZE - 1);
+  }
+  if(var == "MAX_POS"){
+    return String(globalState->channels[channelIndex].numLEDs);
   }
 
   for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
@@ -772,6 +845,16 @@ String channel6LocProcessor(const String& var){
     return stringNumber;
   }
 
+  if(var == "MIN_COL" || var == "MIN_ROW"){
+    return "0";
+  }
+  if(var == "MAX_COL" || var == "MAX_ROW"){
+    return String(LOCATION_GRID_SIZE - 1);
+  }
+  if(var == "MAX_POS"){
+    return String(globalState->channels[channelIndex].numLEDs);
+  }
+
   for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
     char buffer[10];
     String stringNumber = itoa(i,buffer,10);
@@ -802,6 +885,16 @@ String channel7LocProcessor(const String& var){
     char buffer[10];
     String stringNumber = itoa(channelIndex,buffer,10);
     return stringNumber;
+  }
+
+  if(var == "MIN_COL" || var == "MIN_ROW"){
+    return "0";
+  }
+  if(var == "MAX_COL" || var == "MAX_ROW"){
+    return String(LOCATION_GRID_SIZE - 1);
+  }
+  if(var == "MAX_POS"){
+    return String(globalState->channels[channelIndex].numLEDs);
   }
 
   for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
@@ -836,6 +929,16 @@ String channel8LocProcessor(const String& var){
     return stringNumber;
   }
 
+  if(var == "MIN_COL" || var == "MIN_ROW"){
+    return "0";
+  }
+  if(var == "MAX_COL" || var == "MAX_ROW"){
+    return String(LOCATION_GRID_SIZE - 1);
+  }
+  if(var == "MAX_POS"){
+    return String(globalState->channels[channelIndex].numLEDs);
+  }
+
   for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
     char buffer[10];
     String stringNumber = itoa(i,buffer,10);
@@ -866,6 +969,16 @@ String channel9LocProcessor(const String& var){
     char buffer[10];
     String stringNumber = itoa(channelIndex,buffer,10);
     return stringNumber;
+  }
+
+  if(var == "MIN_COL" || var == "MIN_ROW"){
+    return "0";
+  }
+  if(var == "MAX_COL" || var == "MAX_ROW"){
+    return String(LOCATION_GRID_SIZE - 1);
+  }
+  if(var == "MAX_POS"){
+    return String(globalState->channels[channelIndex].numLEDs);
   }
 
   for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
@@ -900,6 +1013,16 @@ String channel10LocProcessor(const String& var){
     return stringNumber;
   }
 
+  if(var == "MIN_COL" || var == "MIN_ROW"){
+    return "0";
+  }
+  if(var == "MAX_COL" || var == "MAX_ROW"){
+    return String(LOCATION_GRID_SIZE - 1);
+  }
+  if(var == "MAX_POS"){
+    return String(globalState->channels[channelIndex].numLEDs);
+  }
+
   for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
     char buffer[10];
     String stringNumber = itoa(i,buffer,10);
@@ -930,6 +1053,16 @@ String channel11LocProcessor(const String& var){
     char buffer[10];
     String stringNumber = itoa(channelIndex,buffer,10);
     return stringNumber;
+  }
+
+  if(var == "MIN_COL" || var == "MIN_ROW"){
+    return "0";
+  }
+  if(var == "MAX_COL" || var == "MAX_ROW"){
+    return String(LOCATION_GRID_SIZE - 1);
+  }
+  if(var == "MAX_POS"){
+    return String(globalState->channels[channelIndex].numLEDs);
   }
 
   for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
@@ -964,6 +1097,16 @@ String channel12LocProcessor(const String& var){
     return stringNumber;
   }
 
+  if(var == "MIN_COL" || var == "MIN_ROW"){
+    return "0";
+  }
+  if(var == "MAX_COL" || var == "MAX_ROW"){
+    return String(LOCATION_GRID_SIZE - 1);
+  }
+  if(var == "MAX_POS"){
+    return String(globalState->channels[channelIndex].numLEDs);
+  }
+
   for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
     char buffer[10];
     String stringNumber = itoa(i,buffer,10);
@@ -994,6 +1137,16 @@ String channel13LocProcessor(const String& var){
     char buffer[10];
     String stringNumber = itoa(channelIndex,buffer,10);
     return stringNumber;
+  }
+
+  if(var == "MIN_COL" || var == "MIN_ROW"){
+    return "0";
+  }
+  if(var == "MAX_COL" || var == "MAX_ROW"){
+    return String(LOCATION_GRID_SIZE - 1);
+  }
+  if(var == "MAX_POS"){
+    return String(globalState->channels[channelIndex].numLEDs);
   }
 
   for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
@@ -1028,6 +1181,16 @@ String channel14LocProcessor(const String& var){
     return stringNumber;
   }
 
+  if(var == "MIN_COL" || var == "MIN_ROW"){
+    return "0";
+  }
+  if(var == "MAX_COL" || var == "MAX_ROW"){
+    return String(LOCATION_GRID_SIZE - 1);
+  }
+  if(var == "MAX_POS"){
+    return String(globalState->channels[channelIndex].numLEDs);
+  }
+
   for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){
     char buffer[10];
     String stringNumber = itoa(i,buffer,10);
@@ -1058,6 +1221,16 @@ String channel15LocProcessor(const String& var){
     char buffer[10];
     String stringNumber = itoa(channelIndex,buffer,10);
     return stringNumber;
+  }
+
+  if(var == "MIN_COL" || var == "MIN_ROW"){
+    return "0";
+  }
+  if(var == "MAX_COL" || var == "MAX_ROW"){
+    return String(LOCATION_GRID_SIZE - 1);
+  }
+  if(var == "MAX_POS"){
+    return String(globalState->channels[channelIndex].numLEDs);
   }
 
   for(int i=0; i<globalState->channels[channelIndex].numLEDs; i++){

@@ -379,13 +379,29 @@ void spinClockwisePalette(AnimationState* animation, ChannelState channels[MAX_C
   CRGB color = ColorFromPalette( animation->palette, animation->stepIndex, animation->brightness, animation->blending);
   if(animation->xPos < LOCATION_GRID_SIZE-1 && animation->yPos == 0){ //Start by sweeping up rows
     animation->xPos++;
+    //Serial.println("Going Up Rows");
   }else if(animation->xPos >= LOCATION_GRID_SIZE-1 && animation->yPos < LOCATION_GRID_SIZE-1){ //Next sweeping "down" cols
     animation->yPos++;
+    //Serial.println("Going Down Cols");
   }else if(animation->xPos <= LOCATION_GRID_SIZE -1 && animation->xPos > 0 && animation->yPos == LOCATION_GRID_SIZE -1){ //Third sweeping back down rows
     animation->xPos--;
+    //Serial.println("Going Down Rows");
   }else if(animation->xPos <= LOCATION_GRID_SIZE -1 && animation->yPos > 0){ //Lastly sweep back up columns
     animation->yPos--;
+    //Serial.println("Going Up Cols");
   }
+  /*if(animation->xPos == 0 && animation->yPos == 0){
+    Serial.println("At Zero");
+    Serial.print("StepIndex: ");
+    Serial.print(animation->stepIndex);
+    Serial.print(" Red: ");
+    Serial.print(color.r);
+    Serial.print(" Green: ");
+    Serial.print(color.g);
+    Serial.print(" Blue: ");
+    Serial.println(color.b);
+  }*/
+
   uint8_t midX = floor(LOCATION_GRID_SIZE / 2);
   uint8_t midY = floor(LOCATION_GRID_SIZE / 2);
   showLine(channels, location, color, animation->yPos, animation->xPos, midY, midX);
