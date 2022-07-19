@@ -297,28 +297,58 @@ void animationUpdated(AnimationState* animation, ChannelState channels[MAX_CHANN
   clear(channels);
 }
 
+void incrementStepIndex(AnimationState* animation, uint8_t stepSize){
+  animation->stepIndexScaler += stepSize;
+  while(animation->stepIndexScaler >= STEP_SIZE_SCALE){
+    animation->stepIndexScaler -= STEP_SIZE_SCALE;
+    animation->stepIndex++;
+  }
+}
+
+void incrementStepIndex(AnimationState* animation){
+  incrementStepIndex(animation, animation->stepSize);
+}
+
 void solidFromPalette(AnimationState* animation, ChannelState channels[MAX_CHANNELS], SwitchState* switches, BluetoothState* bluetooth, LocationState* location){
   CRGB color = ColorFromPalette( animation->palette, animation->stepIndex, animation->brightness, animation->blending);
   setColorAll(location, channels, color);
   applyBufferAndShow(channels,switches);
-  animation->stepIndex += animation->stepSize;
+  incrementStepIndex(animation);
+}
+
+void sweepFrontPalette(AnimationState* animation, ChannelState channels[MAX_CHANNELS], SwitchState* switches, BluetoothState* bluetooth, LocationState* location){
+  //Serial.println("Starting Sweep Up From Palette command");
+  CRGB color = ColorFromPalette( animation->palette, animation->stepIndex, animation->brightness, animation->blending);
+  shiftColorUpRow(location, channels, color);
+  applyBufferAndShow(channels,switches);
+  incrementStepIndex(animation);
+  //Serial.println("Finished Sweep Up From Palette command");
+}
+
+void sweepRearPalette(AnimationState* animation, ChannelState channels[MAX_CHANNELS], SwitchState* switches, BluetoothState* bluetooth, LocationState* location){
+  //Serial.println("Starting Sweep Up From Palette command");
+  CRGB color = ColorFromPalette( animation->palette, animation->stepIndex, animation->brightness, animation->blending);
+  shiftColorDownRow(location, channels, color);
+  applyBufferAndShow(channels,switches);
+  incrementStepIndex(animation);
+  //Serial.println("Finished Sweep Up From Palette command");
 }
 
 void sweepUpPalette(AnimationState* animation, ChannelState channels[MAX_CHANNELS], SwitchState* switches, BluetoothState* bluetooth, LocationState* location){
   //Serial.println("Starting Sweep Up From Palette command");
   CRGB color = ColorFromPalette( animation->palette, animation->stepIndex, animation->brightness, animation->blending);
-  shiftColorUpRow(location, channels, color);
+  shiftColorUpHeight(location, channels, color);
   applyBufferAndShow(channels,switches);
-  animation->stepIndex += animation->stepSize;
+  incrementStepIndex(animation);
   //Serial.println("Finished Sweep Up From Palette command");
 }
 
 void sweepDownPalette(AnimationState* animation, ChannelState channels[MAX_CHANNELS], SwitchState* switches, BluetoothState* bluetooth, LocationState* location){
   //Serial.println("Starting Sweep Up From Palette command");
   CRGB color = ColorFromPalette( animation->palette, animation->stepIndex, animation->brightness, animation->blending);
-  shiftColorDownRow(location, channels, color);
+  shiftColorDownHeight(location, channels, color);
   applyBufferAndShow(channels,switches);
-  animation->stepIndex += animation->stepSize;
+  incrementStepIndex(animation);
   //Serial.println("Finished Sweep Up From Palette command");
 }
 
@@ -327,7 +357,7 @@ void sweepRightPalette(AnimationState* animation, ChannelState channels[MAX_CHAN
   CRGB color = ColorFromPalette( animation->palette, animation->stepIndex, animation->brightness, animation->blending);
   shiftColorUpCol(location, channels, color);
   applyBufferAndShow(channels,switches);
-  animation->stepIndex += animation->stepSize;
+  incrementStepIndex(animation);
   //Serial.println("Finished Sweep Up From Palette command");
 }
 
@@ -336,7 +366,7 @@ void sweepLeftPalette(AnimationState* animation, ChannelState channels[MAX_CHANN
   CRGB color = ColorFromPalette( animation->palette, animation->stepIndex, animation->brightness, animation->blending);
   shiftColorDownCol(location, channels, color);
   applyBufferAndShow(channels,switches);
-  animation->stepIndex += animation->stepSize;
+  incrementStepIndex(animation);
   //Serial.println("Finished Sweep Up From Palette command");
 }
 
@@ -361,9 +391,9 @@ void showLine(ChannelState channels[MAX_CHANNELS], LocationState* location,CRGB 
 
   for(int x=(int)x1; x<=maxX; x++){
     if(steep){
-      setColorAtLocation(location, channels, y, x, color);
+      setColorAtLocationIgnoreHeight(location, channels, y, x, color);
     }else{
-      setColorAtLocation(location, channels, x, y, color);
+      setColorAtLocationIgnoreHeight(location, channels, x, y, color);
     }
 
     error -= dy;
@@ -390,23 +420,12 @@ void spinClockwisePalette(AnimationState* animation, ChannelState channels[MAX_C
     animation->yPos--;
     //Serial.println("Going Up Cols");
   }
-  /*if(animation->xPos == 0 && animation->yPos == 0){
-    Serial.println("At Zero");
-    Serial.print("StepIndex: ");
-    Serial.print(animation->stepIndex);
-    Serial.print(" Red: ");
-    Serial.print(color.r);
-    Serial.print(" Green: ");
-    Serial.print(color.g);
-    Serial.print(" Blue: ");
-    Serial.println(color.b);
-  }*/
 
   uint8_t midX = floor(LOCATION_GRID_SIZE / 2);
   uint8_t midY = floor(LOCATION_GRID_SIZE / 2);
   showLine(channels, location, color, animation->yPos, animation->xPos, midY, midX);
   applyBufferAndShow(channels,switches);
-  animation->stepIndex += animation->stepSize;
+  incrementStepIndex(animation);
   //Serial.println("Finished Spin Clockwise From Palette command");
 }
 
@@ -449,10 +468,10 @@ void updateAnimation(AnimationState* animation, ChannelState channels[MAX_CHANNE
         solidFromPalette(animation, channels, switches, bluetooth, location);
         break;
       case 1:
-        sweepUpPalette(animation, channels, switches, bluetooth, location);
+        sweepFrontPalette(animation, channels, switches, bluetooth, location);
         break;
       case 2:
-        sweepDownPalette(animation, channels, switches, bluetooth, location);
+        sweepRearPalette(animation, channels, switches, bluetooth, location);
         break;
       case 3:
         sweepRightPalette(animation, channels, switches, bluetooth, location);
@@ -461,6 +480,12 @@ void updateAnimation(AnimationState* animation, ChannelState channels[MAX_CHANNE
         sweepLeftPalette(animation, channels, switches, bluetooth, location);
         break;
       case 5:
+        sweepUpPalette(animation, channels, switches, bluetooth, location);
+        break;
+      case 6:
+        sweepDownPalette(animation, channels, switches, bluetooth, location);
+        break;
+      case 7:
         spinClockwisePalette(animation, channels, switches, bluetooth, location);
         break;
       default:

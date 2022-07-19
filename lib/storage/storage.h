@@ -12,7 +12,7 @@ void saveAnimationState(Preferences* preferences, std::string value);
 
 void saveChannelDetailState(Preferences* preferences, int index, std::string value);
 
-void saveChannelLocationState(Preferences* preferences, int index, std::string value);
+void saveChannelLocationState(Preferences* preferences, int index, uint8_t value[]);
 
 std::string loadSwitchState(Preferences* preferences);
 
@@ -20,6 +20,6 @@ std::string loadAnimationState(Preferences* preferences);
 
 std::string loadChannelDetailState(Preferences* preferences, int index);
 
-std::string loadChannelLocationState(Preferences* preferences, int index);
+void loadChannelLocationState(Preferences* preferences, int index, uint8_t value[]);
 
 #endif

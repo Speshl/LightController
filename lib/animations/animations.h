@@ -11,6 +11,7 @@
 
 #define ANIMATION_STATE_LENGTH 46
 #define MAX_COLORS 10
+#define STEP_SIZE_SCALE 20
 
 struct AnimationState {
   uint8_t animation;
@@ -25,6 +26,8 @@ struct AnimationState {
   uint8_t stepIndex;
   uint8_t xPos;
   uint8_t yPos;
+  uint8_t zPos;
+  uint8_t stepIndexScaler;
   unsigned long frameToFrameTime;
   unsigned long lastFrameTime;
   unsigned long numFrames;

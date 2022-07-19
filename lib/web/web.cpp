@@ -1,13 +1,14 @@
 #include "web.h"
 
-void saveState2(State* currentState){
+void saveStateFromWeb(State* currentState){
   Serial.println("Saving State");
   saveSwitchState(&currentState->preferences, getStateAsString(&currentState->switches));
   saveAnimationState(&currentState->preferences, getStateAsString(&currentState->animation));
   for(int i=0; i<MAX_CHANNELS; i++){
     saveChannelDetailState(&currentState->preferences, i, getStateAsString(currentState->channels, i));
-    std::string data = getChannelLocations(&currentState->location, i, currentState->channels[i].numLEDs);
-    saveChannelLocationState(&currentState->preferences, i, data);
+    uint8_t locationArray[MAX_LEDS*3];
+    getChannelLocations(&currentState->location, i, currentState->channels[i].numLEDs, locationArray);
+    saveChannelLocationState(&currentState->preferences, i, locationArray);
   }
   Serial.println("State Saved");
 }
@@ -48,14 +49,14 @@ void initializeAP(State* state){
         request->send(SPIFFS, "/view.htm", String(), false, viewProcessor);
     });
     server.on("/save", HTTP_POST, [](AsyncWebServerRequest * request){
-        saveState2(globalState);
+        saveStateFromWeb(globalState);
         request->send(SPIFFS, "/switches.htm", String(), false, switchesProcessor);
     });
     server.on("/defaultLocations", HTTP_POST, [](AsyncWebServerRequest * request){
         
         removeAllEntries(&globalState->location);
         setInitialState(&globalState->location);
-        saveState2(globalState); //save so that it gets reloaded next time
+        saveStateFromWeb(globalState); //save so that it gets reloaded next time
         request->send(SPIFFS, "/switches.htm", String(), false, switchesProcessor);
     });
     server.on("/switches", HTTP_POST, [](AsyncWebServerRequest * request){
@@ -165,20 +166,28 @@ void initializeAP(State* state){
             std::string posString = itoa(i, buffer, 10);
             std::string locRow = "LOC_";
             std::string locCol = "LOC_";
+            std::string locHeight = "LOC_";
+
             locRow += posString.c_str();
             locCol += posString.c_str();
+            locHeight += posString.c_str();
+
             locRow += "_ROW";
             locCol += "_COL";
+            locHeight += "_HEIGHT";
 
             AsyncWebParameter* rowParam = request->getParam(locRow.c_str(), true);
             AsyncWebParameter* colParam = request->getParam(locCol.c_str(), true);
+            AsyncWebParameter* heightParam = request->getParam(locHeight.c_str(), true);
 
             int row = atoi(rowParam->value().c_str());
             int col = atoi(colParam->value().c_str());
-            addEntry(&globalState->location,row, col, channelIndex, i);
+            int height = atoi(heightParam->value().c_str());
+            addEntry(&globalState->location,row, col, height, channelIndex, i);
           }
-          std::string data = getChannelLocations(&globalState->location, channelIndex, globalState->channels[channelIndex].numLEDs);
-          saveChannelLocationState(&globalState->preferences, channelIndex, data);
+          uint8_t locationArray[MAX_LEDS*3];
+          getChannelLocations(&globalState->location, channelIndex, globalState->channels[channelIndex].numLEDs, locationArray);
+          saveChannelLocationState(&globalState->preferences, channelIndex, locationArray);
         }else{
           request->send(SPIFFS, "/animation.htm", String(), false, animationProcessor);
         }
@@ -316,7 +325,7 @@ String viewProcessor(const String& var){
     return String((LOCATION_GRID_SIZE*3)+10);
   }
   if(var == "LOCATION_MAP"){
-    return getLocationGrid(&globalState->location).c_str();
+    return "CUBED";//getLocationGrid(&globalState->location).c_str();
   }
   return String();
 }
@@ -329,14 +338,14 @@ String animationProcessor(const String& var){
         return "";
     }
   }
-  if(var == "SWEEPUP_ANIMATION_SELECTED"){
+  if(var == "SWEEPFRONT_ANIMATION_SELECTED"){
     if(globalState->animation.animation == 1){
         return "selected";
     }else{
         return "";
     }
   }
-  if(var == "SWEEPDOWN_ANIMATION_SELECTED"){
+  if(var == "SWEEPREAR_ANIMATION_SELECTED"){
     if(globalState->animation.animation == 2){
         return "selected";
     }else{
@@ -357,8 +366,22 @@ String animationProcessor(const String& var){
         return "";
     }
   }
-  if(var == "SPINCLOCK_ANIMATION_SELECTED"){
+  if(var == "SWEEPUP_ANIMATION_SELECTED"){
     if(globalState->animation.animation == 5){
+        return "selected";
+    }else{
+        return "";
+    }
+  }
+  if(var == "SWEEPDOWN_ANIMATION_SELECTED"){
+    if(globalState->animation.animation == 6){
+        return "selected";
+    }else{
+        return "";
+    }
+  }
+  if(var == "SPINCLOCK_ANIMATION_SELECTED"){
+    if(globalState->animation.animation == 7){
         return "selected";
     }else{
         return "";
@@ -593,10 +616,10 @@ String channel0LocProcessor(const String& var){
     return stringNumber;
   }
 
-  if(var == "MIN_COL" || var == "MIN_ROW"){
+  if(var == "MIN_COL" || var == "MIN_ROW" || var == "MIN_HEIGHT"){
     return "0";
   }
-  if(var == "MAX_COL" || var == "MAX_ROW"){
+  if(var == "MAX_COL" || var == "MAX_ROW" || var == "MAX_HEIGHT"){
     return String(LOCATION_GRID_SIZE - 1);
   }
   if(var == "NUM_POS"){
@@ -613,14 +636,23 @@ String channel0LocProcessor(const String& var){
     if(var == prefix+"ROW"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringRow.c_str();
     }
     if(var == prefix+"COL"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringCol.c_str();
+    }
+    if(var == prefix+"HEIGHT"){
+      std::string stringRow;
+      std::string stringCol;
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
+      return stringHeight.c_str();
     }
   }
   return "hidden";
@@ -635,10 +667,10 @@ String channel1LocProcessor(const String& var){
     return stringNumber;
   }
 
-  if(var == "MIN_COL" || var == "MIN_ROW"){
+  if(var == "MIN_COL" || var == "MIN_ROW" || var == "MIN_HEIGHT"){
     return "0";
   }
-  if(var == "MAX_COL" || var == "MAX_ROW"){
+  if(var == "MAX_COL" || var == "MAX_ROW" || var == "MAX_HEIGHT"){
     return String(LOCATION_GRID_SIZE - 1);
   }
   if(var == "MAX_POS"){
@@ -655,14 +687,23 @@ String channel1LocProcessor(const String& var){
     if(var == prefix+"ROW"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringRow.c_str();
     }
     if(var == prefix+"COL"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringCol.c_str();
+    }
+    if(var == prefix+"HEIGHT"){
+      std::string stringRow;
+      std::string stringCol;
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
+      return stringHeight.c_str();
     }
   }
   return "hidden";
@@ -677,10 +718,10 @@ String channel2LocProcessor(const String& var){
     return stringNumber;
   }
 
-  if(var == "MIN_COL" || var == "MIN_ROW"){
+  if(var == "MIN_COL" || var == "MIN_ROW" || var == "MIN_HEIGHT"){
     return "0";
   }
-  if(var == "MAX_COL" || var == "MAX_ROW"){
+  if(var == "MAX_COL" || var == "MAX_ROW" || var == "MAX_HEIGHT"){
     return String(LOCATION_GRID_SIZE - 1);
   }
   if(var == "MAX_POS"){
@@ -697,14 +738,23 @@ String channel2LocProcessor(const String& var){
     if(var == prefix+"ROW"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringRow.c_str();
     }
     if(var == prefix+"COL"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringCol.c_str();
+    }
+    if(var == prefix+"HEIGHT"){
+      std::string stringRow;
+      std::string stringCol;
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
+      return stringHeight.c_str();
     }
   }
   return "hidden";
@@ -719,10 +769,10 @@ String channel3LocProcessor(const String& var){
     return stringNumber;
   }
 
-  if(var == "MIN_COL" || var == "MIN_ROW"){
+  if(var == "MIN_COL" || var == "MIN_ROW" || var == "MIN_HEIGHT"){
     return "0";
   }
-  if(var == "MAX_COL" || var == "MAX_ROW"){
+  if(var == "MAX_COL" || var == "MAX_ROW" || var == "MAX_HEIGHT"){
     return String(LOCATION_GRID_SIZE - 1);
   }
   if(var == "MAX_POS"){
@@ -739,14 +789,23 @@ String channel3LocProcessor(const String& var){
     if(var == prefix+"ROW"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringRow.c_str();
     }
     if(var == prefix+"COL"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringCol.c_str();
+    }
+    if(var == prefix+"HEIGHT"){
+      std::string stringRow;
+      std::string stringCol;
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
+      return stringHeight.c_str();
     }
   }
   return "hidden";
@@ -761,10 +820,10 @@ String channel4LocProcessor(const String& var){
     return stringNumber;
   }
 
-  if(var == "MIN_COL" || var == "MIN_ROW"){
+  if(var == "MIN_COL" || var == "MIN_ROW" || var == "MIN_HEIGHT"){
     return "0";
   }
-  if(var == "MAX_COL" || var == "MAX_ROW"){
+  if(var == "MAX_COL" || var == "MAX_ROW" || var == "MAX_HEIGHT"){
     return String(LOCATION_GRID_SIZE - 1);
   }
   if(var == "MAX_POS"){
@@ -781,14 +840,23 @@ String channel4LocProcessor(const String& var){
     if(var == prefix+"ROW"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringRow.c_str();
     }
     if(var == prefix+"COL"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringCol.c_str();
+    }
+    if(var == prefix+"HEIGHT"){
+      std::string stringRow;
+      std::string stringCol;
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
+      return stringHeight.c_str();
     }
   }
   return "hidden";
@@ -803,10 +871,10 @@ String channel5LocProcessor(const String& var){
     return stringNumber;
   }
 
-  if(var == "MIN_COL" || var == "MIN_ROW"){
+  if(var == "MIN_COL" || var == "MIN_ROW" || var == "MIN_HEIGHT"){
     return "0";
   }
-  if(var == "MAX_COL" || var == "MAX_ROW"){
+  if(var == "MAX_COL" || var == "MAX_ROW" || var == "MAX_HEIGHT"){
     return String(LOCATION_GRID_SIZE - 1);
   }
   if(var == "MAX_POS"){
@@ -823,14 +891,23 @@ String channel5LocProcessor(const String& var){
     if(var == prefix+"ROW"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringRow.c_str();
     }
     if(var == prefix+"COL"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringCol.c_str();
+    }
+    if(var == prefix+"HEIGHT"){
+      std::string stringRow;
+      std::string stringCol;
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
+      return stringHeight.c_str();
     }
   }
   return "hidden";
@@ -845,10 +922,10 @@ String channel6LocProcessor(const String& var){
     return stringNumber;
   }
 
-  if(var == "MIN_COL" || var == "MIN_ROW"){
+  if(var == "MIN_COL" || var == "MIN_ROW" || var == "MIN_HEIGHT"){
     return "0";
   }
-  if(var == "MAX_COL" || var == "MAX_ROW"){
+  if(var == "MAX_COL" || var == "MAX_ROW" || var == "MAX_HEIGHT"){
     return String(LOCATION_GRID_SIZE - 1);
   }
   if(var == "MAX_POS"){
@@ -865,14 +942,23 @@ String channel6LocProcessor(const String& var){
     if(var == prefix+"ROW"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringRow.c_str();
     }
     if(var == prefix+"COL"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringCol.c_str();
+    }
+    if(var == prefix+"HEIGHT"){
+      std::string stringRow;
+      std::string stringCol;
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
+      return stringHeight.c_str();
     }
   }
   return "hidden";
@@ -887,10 +973,10 @@ String channel7LocProcessor(const String& var){
     return stringNumber;
   }
 
-  if(var == "MIN_COL" || var == "MIN_ROW"){
+  if(var == "MIN_COL" || var == "MIN_ROW" || var == "MIN_HEIGHT"){
     return "0";
   }
-  if(var == "MAX_COL" || var == "MAX_ROW"){
+  if(var == "MAX_COL" || var == "MAX_ROW" || var == "MAX_HEIGHT"){
     return String(LOCATION_GRID_SIZE - 1);
   }
   if(var == "MAX_POS"){
@@ -907,14 +993,23 @@ String channel7LocProcessor(const String& var){
     if(var == prefix+"ROW"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringRow.c_str();
     }
     if(var == prefix+"COL"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringCol.c_str();
+    }
+    if(var == prefix+"HEIGHT"){
+      std::string stringRow;
+      std::string stringCol;
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
+      return stringHeight.c_str();
     }
   }
   return "hidden";
@@ -929,10 +1024,10 @@ String channel8LocProcessor(const String& var){
     return stringNumber;
   }
 
-  if(var == "MIN_COL" || var == "MIN_ROW"){
+  if(var == "MIN_COL" || var == "MIN_ROW" || var == "MIN_HEIGHT"){
     return "0";
   }
-  if(var == "MAX_COL" || var == "MAX_ROW"){
+  if(var == "MAX_COL" || var == "MAX_ROW" || var == "MAX_HEIGHT"){
     return String(LOCATION_GRID_SIZE - 1);
   }
   if(var == "MAX_POS"){
@@ -949,14 +1044,23 @@ String channel8LocProcessor(const String& var){
     if(var == prefix+"ROW"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringRow.c_str();
     }
     if(var == prefix+"COL"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringCol.c_str();
+    }
+    if(var == prefix+"HEIGHT"){
+      std::string stringRow;
+      std::string stringCol;
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
+      return stringHeight.c_str();
     }
   }
   return "hidden";
@@ -971,10 +1075,10 @@ String channel9LocProcessor(const String& var){
     return stringNumber;
   }
 
-  if(var == "MIN_COL" || var == "MIN_ROW"){
+  if(var == "MIN_COL" || var == "MIN_ROW" || var == "MIN_HEIGHT"){
     return "0";
   }
-  if(var == "MAX_COL" || var == "MAX_ROW"){
+  if(var == "MAX_COL" || var == "MAX_ROW" || var == "MAX_HEIGHT"){
     return String(LOCATION_GRID_SIZE - 1);
   }
   if(var == "MAX_POS"){
@@ -991,14 +1095,23 @@ String channel9LocProcessor(const String& var){
     if(var == prefix+"ROW"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringRow.c_str();
     }
     if(var == prefix+"COL"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringCol.c_str();
+    }
+    if(var == prefix+"HEIGHT"){
+      std::string stringRow;
+      std::string stringCol;
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
+      return stringHeight.c_str();
     }
   }
   return "hidden";
@@ -1013,10 +1126,10 @@ String channel10LocProcessor(const String& var){
     return stringNumber;
   }
 
-  if(var == "MIN_COL" || var == "MIN_ROW"){
+  if(var == "MIN_COL" || var == "MIN_ROW" || var == "MIN_HEIGHT"){
     return "0";
   }
-  if(var == "MAX_COL" || var == "MAX_ROW"){
+  if(var == "MAX_COL" || var == "MAX_ROW" || var == "MAX_HEIGHT"){
     return String(LOCATION_GRID_SIZE - 1);
   }
   if(var == "MAX_POS"){
@@ -1033,14 +1146,23 @@ String channel10LocProcessor(const String& var){
     if(var == prefix+"ROW"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringRow.c_str();
     }
     if(var == prefix+"COL"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringCol.c_str();
+    }
+    if(var == prefix+"HEIGHT"){
+      std::string stringRow;
+      std::string stringCol;
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
+      return stringHeight.c_str();
     }
   }
   return "hidden";
@@ -1055,10 +1177,10 @@ String channel11LocProcessor(const String& var){
     return stringNumber;
   }
 
-  if(var == "MIN_COL" || var == "MIN_ROW"){
+  if(var == "MIN_COL" || var == "MIN_ROW" || var == "MIN_HEIGHT"){
     return "0";
   }
-  if(var == "MAX_COL" || var == "MAX_ROW"){
+  if(var == "MAX_COL" || var == "MAX_ROW" || var == "MAX_HEIGHT"){
     return String(LOCATION_GRID_SIZE - 1);
   }
   if(var == "MAX_POS"){
@@ -1075,14 +1197,23 @@ String channel11LocProcessor(const String& var){
     if(var == prefix+"ROW"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringRow.c_str();
     }
     if(var == prefix+"COL"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringCol.c_str();
+    }
+    if(var == prefix+"HEIGHT"){
+      std::string stringRow;
+      std::string stringCol;
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
+      return stringHeight.c_str();
     }
   }
   return "hidden";
@@ -1097,10 +1228,10 @@ String channel12LocProcessor(const String& var){
     return stringNumber;
   }
 
-  if(var == "MIN_COL" || var == "MIN_ROW"){
+  if(var == "MIN_COL" || var == "MIN_ROW" || var == "MIN_HEIGHT"){
     return "0";
   }
-  if(var == "MAX_COL" || var == "MAX_ROW"){
+  if(var == "MAX_COL" || var == "MAX_ROW" || var == "MAX_HEIGHT"){
     return String(LOCATION_GRID_SIZE - 1);
   }
   if(var == "MAX_POS"){
@@ -1117,14 +1248,23 @@ String channel12LocProcessor(const String& var){
     if(var == prefix+"ROW"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringRow.c_str();
     }
     if(var == prefix+"COL"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringCol.c_str();
+    }
+    if(var == prefix+"HEIGHT"){
+      std::string stringRow;
+      std::string stringCol;
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
+      return stringHeight.c_str();
     }
   }
   return "hidden";
@@ -1139,10 +1279,10 @@ String channel13LocProcessor(const String& var){
     return stringNumber;
   }
 
-  if(var == "MIN_COL" || var == "MIN_ROW"){
+  if(var == "MIN_COL" || var == "MIN_ROW" || var == "MIN_HEIGHT"){
     return "0";
   }
-  if(var == "MAX_COL" || var == "MAX_ROW"){
+  if(var == "MAX_COL" || var == "MAX_ROW" || var == "MAX_HEIGHT"){
     return String(LOCATION_GRID_SIZE - 1);
   }
   if(var == "MAX_POS"){
@@ -1159,14 +1299,23 @@ String channel13LocProcessor(const String& var){
     if(var == prefix+"ROW"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringRow.c_str();
     }
     if(var == prefix+"COL"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringCol.c_str();
+    }
+    if(var == prefix+"HEIGHT"){
+      std::string stringRow;
+      std::string stringCol;
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
+      return stringHeight.c_str();
     }
   }
   return "hidden";
@@ -1181,10 +1330,10 @@ String channel14LocProcessor(const String& var){
     return stringNumber;
   }
 
-  if(var == "MIN_COL" || var == "MIN_ROW"){
+  if(var == "MIN_COL" || var == "MIN_ROW" || var == "MIN_HEIGHT"){
     return "0";
   }
-  if(var == "MAX_COL" || var == "MAX_ROW"){
+  if(var == "MAX_COL" || var == "MAX_ROW" || var == "MAX_HEIGHT"){
     return String(LOCATION_GRID_SIZE - 1);
   }
   if(var == "MAX_POS"){
@@ -1201,14 +1350,23 @@ String channel14LocProcessor(const String& var){
     if(var == prefix+"ROW"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringRow.c_str();
     }
     if(var == prefix+"COL"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringCol.c_str();
+    }
+    if(var == prefix+"HEIGHT"){
+      std::string stringRow;
+      std::string stringCol;
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
+      return stringHeight.c_str();
     }
   }
   return "hidden";
@@ -1223,10 +1381,10 @@ String channel15LocProcessor(const String& var){
     return stringNumber;
   }
 
-  if(var == "MIN_COL" || var == "MIN_ROW"){
+  if(var == "MIN_COL" || var == "MIN_ROW" || var == "MIN_HEIGHT"){
     return "0";
   }
-  if(var == "MAX_COL" || var == "MAX_ROW"){
+  if(var == "MAX_COL" || var == "MAX_ROW" || var == "MAX_HEIGHT"){
     return String(LOCATION_GRID_SIZE - 1);
   }
   if(var == "MAX_POS"){
@@ -1243,14 +1401,23 @@ String channel15LocProcessor(const String& var){
     if(var == prefix+"ROW"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringRow.c_str();
     }
     if(var == prefix+"COL"){
       std::string stringRow;
       std::string stringCol;
-      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol);
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
       return stringCol.c_str();
+    }
+    if(var == prefix+"HEIGHT"){
+      std::string stringRow;
+      std::string stringCol;
+      std::string stringHeight;
+      getChannelLocationAtPosition(&globalState->location, channelIndex, i, &stringRow, &stringCol, &stringHeight);
+      return stringHeight.c_str();
     }
   }
   return "hidden";

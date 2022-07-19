@@ -50,15 +50,11 @@ void saveChannelDetailState(Preferences* preferences, int index, std::string val
   preferences->putBytes(key.c_str(), &tempData, value.length());
 }
 
-void saveChannelLocationState(Preferences* preferences, int index, std::string value){
+void saveChannelLocationState(Preferences* preferences, int index, uint8_t value[]){
   char numstr[21];
   std::string temp = itoa(index, numstr, 10);
   std::string key = "Loc" + temp;
-  /*Serial.print("Location ");
-  Serial.print(key.c_str());
-  Serial.print(" data to save - ");
-  Serial.println(value.c_str());*/
-  preferences->putString(key.c_str(), value.c_str());
+  preferences->putBytes(key.c_str(), value, 300);
 }
 
 std::string loadSwitchState(Preferences* preferences){
@@ -104,22 +100,10 @@ std::string loadChannelDetailState(Preferences* preferences, int index){
   return returnValue;
 }
 
-std::string loadChannelLocationState(Preferences* preferences, int index){
+void loadChannelLocationState(Preferences* preferences, int index, uint8_t value[]){
   char numstr[21];
   std::string temp = itoa(index, numstr, 10);
   std::string key = "Loc" + temp;
-
-  std::string returnValue = "";
-  char tempData[800]; //Each entry is [XX,XX]|, current max is 100 entries, so max is 800
-  /*Serial.print("Getting Channel ");
-  Serial.println(key.c_str());*/
-
-  preferences->getString(key.c_str(),tempData, 800);
-  returnValue = tempData;
-
-  /*Serial.print("Location ");
-  Serial.print(key.c_str());
-  Serial.print(" data read - ");
-  Serial.println(returnValue.c_str());*/
-  return returnValue;
+  preferences->getBytes(key.c_str(),value, 3*100);
+  return;
 }
